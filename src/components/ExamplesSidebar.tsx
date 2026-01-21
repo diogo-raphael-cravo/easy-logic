@@ -2,11 +2,12 @@ import { EXAMPLES } from '../constants/examples'
 
 interface ExamplesSidebarProps {
   onExampleClick: (formula: string) => void
+  isOpen?: boolean
 }
 
-export function ExamplesSidebar({ onExampleClick }: ExamplesSidebarProps) {
+export function ExamplesSidebar({ onExampleClick, isOpen = true }: ExamplesSidebarProps) {
   return (
-    <div className="examples-sidebar">
+    <div className={`examples-sidebar ${isOpen ? 'open' : 'closed'}`}>
       <h2>Examples</h2>
       <div className="examples-list">
         {EXAMPLES.map((example, index) => (

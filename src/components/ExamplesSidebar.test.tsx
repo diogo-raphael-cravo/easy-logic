@@ -104,4 +104,36 @@ describe("ExamplesSidebar", () => {
       expect(descriptionElement).toHaveClass("example-description");
     });
   });
+
+  it("applies 'open' class by default when isOpen is true", () => {
+    const mockOnClick = vi.fn();
+    const { container } = render(
+      <ExamplesSidebar onExampleClick={mockOnClick} isOpen={true} />
+    );
+
+    const sidebar = container.querySelector(".examples-sidebar");
+    expect(sidebar).toHaveClass("open");
+    expect(sidebar).not.toHaveClass("closed");
+  });
+
+  it("applies 'closed' class when isOpen is false", () => {
+    const mockOnClick = vi.fn();
+    const { container } = render(
+      <ExamplesSidebar onExampleClick={mockOnClick} isOpen={false} />
+    );
+
+    const sidebar = container.querySelector(".examples-sidebar");
+    expect(sidebar).toHaveClass("closed");
+    expect(sidebar).not.toHaveClass("open");
+  });
+
+  it("defaults to open when isOpen prop is not provided", () => {
+    const mockOnClick = vi.fn();
+    const { container } = render(
+      <ExamplesSidebar onExampleClick={mockOnClick} />
+    );
+
+    const sidebar = container.querySelector(".examples-sidebar");
+    expect(sidebar).toHaveClass("open");
+  });
 });

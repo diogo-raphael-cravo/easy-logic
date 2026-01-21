@@ -13,6 +13,7 @@ interface FormulaResult {
 
 function App() {
   const [formulas, setFormulas] = useState<FormulaResult[]>([])
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const handleFormulaSubmit = (formula: string) => {
     const result = parseFormula(formula)
@@ -30,9 +31,21 @@ function App() {
     handleFormulaSubmit(formula)
   }
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
+
   return (
     <div className="app-layout">
-      <ExamplesSidebar onExampleClick={handleExampleClick} />
+      <button 
+        className="sidebar-toggle" 
+        onClick={toggleSidebar}
+        aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+        title={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+      >
+        <span className="hamburger"></span>
+      </button>
+      <ExamplesSidebar onExampleClick={handleExampleClick} isOpen={sidebarOpen} />
       
       <div className="app-container">
         <div className="header">

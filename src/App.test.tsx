@@ -123,4 +123,49 @@ describe('App', () => {
     // Second should appear first (newest first)
     expect(codeElements[0].textContent).toBe('second')
   })
+
+  it('should render sidebar toggle button on mobile', () => {
+    render(<App />)
+    
+    const toggleButton = screen.getByRole('button', { name: /close sidebar|open sidebar/i })
+    expect(toggleButton).toBeInTheDocument()
+  })
+
+  it('should toggle sidebar visibility', async () => {
+    render(<App />)
+    
+    const toggleButton = screen.getByRole('button', { name: /close sidebar|open sidebar/i })
+    const sidebar = document.querySelector('.examples-sidebar')
+    
+    // Initially sidebar should have 'open' class
+    expect(sidebar).toHaveClass('open')
+    
+    // Click to close
+    await userEvent.click(toggleButton)
+    expect(sidebar).toHaveClass('closed')
+    
+    // Click to open again
+    await userEvent.click(toggleButton)
+    expect(sidebar).toHaveClass('open')
+  })
+
+  it('should toggle button aria-label when clicking', async () => {
+    render(<App />)
+    
+    const toggleButton = screen.getByRole('button', { name: /close sidebar|open sidebar/i })
+    
+    // Initial state
+    let ariaLabel = toggleButton.getAttribute('aria-label')
+    expect(ariaLabel).toBe('Close sidebar')
+    
+    // After click
+    await userEvent.click(toggleButton)
+    ariaLabel = toggleButton.getAttribute('aria-label')
+    expect(ariaLabel).toBe('Open sidebar')
+    
+    // After second click
+    await userEvent.click(toggleButton)
+    ariaLabel = toggleButton.getAttribute('aria-label')
+    expect(ariaLabel).toBe('Close sidebar')
+  })
 })
