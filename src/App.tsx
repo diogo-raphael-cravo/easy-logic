@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box, Drawer, AppBar, Toolbar, IconButton, useMediaQuery, useTheme } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import { FormulaInput } from './components/FormulaInput'
@@ -16,6 +17,7 @@ interface FormulaResult {
 const DRAWER_WIDTH = 300
 
 function App() {
+  const { t } = useTranslation()
   const [formulas, setFormulas] = useState<FormulaResult[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
   const theme = useTheme()
@@ -53,7 +55,7 @@ function App() {
             >
               <MenuIcon />
             </IconButton>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', flex: 1 }}>Easy Logic</h1>
+            <h1 style={{ margin: 0, fontSize: '1.5rem', flex: 1 }}>{t('title')}</h1>
           </Toolbar>
         </AppBar>
       )}
@@ -85,8 +87,8 @@ function App() {
         <div className="app-container">
           {!isMobile && (
             <div className="header">
-              <h1>Easy Logic</h1>
-              <p>Propositional Logic Formula Renderer</p>
+              <h1>{t('title')}</h1>
+              <p>{t('subtitle')}</p>
             </div>
           )}
 

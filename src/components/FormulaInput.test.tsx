@@ -17,7 +17,7 @@ describe('FormulaInput', () => {
     const mockSubmit = vi.fn()
     render(<FormulaInput onSubmit={mockSubmit} />)
     
-    const label = screen.getByLabelText(/Enter a propositional logic formula/i)
+    const label = screen.getByLabelText(/Enter Formula/i)
     expect(label).toBeInTheDocument()
   })
 
@@ -25,7 +25,7 @@ describe('FormulaInput', () => {
     const mockSubmit = vi.fn()
     render(<FormulaInput onSubmit={mockSubmit} />)
     
-    const help = screen.getByText(/Syntax:/i)
+    const help = screen.getByText(/Operators:/i)
     expect(help).toBeInTheDocument()
   })
 

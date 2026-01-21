@@ -1,4 +1,5 @@
 import { Box, List, ListItem, ListItemButton, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { EXAMPLES } from '../constants/examples'
 
 interface ExamplesSidebarProps {
@@ -6,17 +7,19 @@ interface ExamplesSidebarProps {
 }
 
 export function ExamplesSidebar({ onExampleClick }: ExamplesSidebarProps) {
+  const { t } = useTranslation()
+
   return (
     <Box sx={{ overflow: 'auto', p: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Examples
+        {t('examples')}
       </Typography>
       <List sx={{ p: 0 }}>
         {EXAMPLES.map((example, index) => (
           <ListItem key={index} disablePadding sx={{ mb: 1 }}>
             <ListItemButton
               onClick={() => onExampleClick(example.formula)}
-              title={example.description}
+              title={t(example.descriptionKey)}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -35,7 +38,7 @@ export function ExamplesSidebar({ onExampleClick }: ExamplesSidebarProps) {
                 variant="subtitle2"
                 sx={{ fontWeight: 600, color: '#1976d2' }}
               >
-                {example.label}
+                {t(example.labelKey)}
               </Typography>
               <Typography
                 variant="body2"
@@ -54,7 +57,7 @@ export function ExamplesSidebar({ onExampleClick }: ExamplesSidebarProps) {
                 variant="caption"
                 sx={{ opacity: 0.7, fontSize: '0.75rem' }}
               >
-                {example.description}
+                {t(example.descriptionKey)}
               </Typography>
             </ListItemButton>
           </ListItem>

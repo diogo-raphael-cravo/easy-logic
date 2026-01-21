@@ -18,9 +18,11 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "i18next": "^25.8.0",
     "katex": "^0.16.27",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^16.5.3",
     "react-katex": "^3.1.0"
   },
   "devDependencies": {

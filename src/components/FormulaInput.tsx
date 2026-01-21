@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface FormulaInputProps {
   onSubmit: (formula: string) => void
 }
 
 export function FormulaInput({ onSubmit }: FormulaInputProps) {
+  const { t } = useTranslation()
   const [input, setInput] = useState('')
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -18,7 +20,7 @@ export function FormulaInput({ onSubmit }: FormulaInputProps) {
 
   return (
     <div className="formula-input-container">
-      <label htmlFor="formula-input">Enter a propositional logic formula:</label>
+      <label htmlFor="formula-input">{t('formulaInput')}:</label>
       <input
         id="formula-input"
         type="text"
@@ -29,7 +31,7 @@ export function FormulaInput({ onSubmit }: FormulaInputProps) {
         className="formula-input"
       />
       <div className="syntax-help">
-        <p><strong>Syntax:</strong> ^ (and) | (or) → ({'->'}) ↔ ({`<->`}) ¬ (~) T F variables</p>
+        <p><strong>{t('syntaxHelp')}</strong></p>
       </div>
     </div>
   )
