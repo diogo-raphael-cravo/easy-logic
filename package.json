@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "prepare": "husky install"
   },
   "dependencies": {
     "katex": "^0.16.27",
@@ -28,6 +29,7 @@
     "@vitest/coverage-v8": "^4.0.17",
     "@vitest/ui": "^4.0.17",
     "happy-dom": "^20.3.4",
+    "husky": "^9.1.7",
     "jsdom": "^27.4.0",
     "typescript": "^5.4.5",
     "vite": "^5.1.0",
