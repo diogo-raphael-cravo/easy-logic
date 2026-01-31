@@ -279,6 +279,47 @@ export default function ProofAssistantPage() {
     )
   }
 
+  const handleDeleteStep = (stepId: number) => {
+    const step = proofState.steps.find(s => s.id === stepId)
+    if (!step) return
+
+    // Don't allow deleting premises
+    if (step.rule === 'Premise') {
+      setErrorMessage(t('cannotDeletePremise'))
+      return
+    }
+
+    // Check if any other steps depend on this one
+    const dependentSteps = proofState.steps.filter(s => 
+      s.dependencies.includes(stepId)
+    )
+    if (dependentSteps.length > 0) {
+      setErrorMessage(t('cannotDeleteDependency'))
+      return
+    }
+
+    // Find all steps that should be deleted (this step and any steps after it at same or higher depth)
+    const stepIndex = proofState.steps.findIndex(s => s.id === stepId)
+    const stepsToKeep = proofState.steps.slice(0, stepIndex)
+    
+    // Recalculate current depth based on remaining steps
+    let newDepth = 0
+    if (stepsToKeep.length > 0) {
+      const lastStep = stepsToKeep[stepsToKeep.length - 1]
+      newDepth = lastStep.rule === 'Assume' ? lastStep.depth : lastStep.depth
+    }
+
+    setProofState({
+      ...proofState,
+      steps: stepsToKeep,
+      currentDepth: newDepth,
+      isComplete: false,
+    })
+    setSelectedSteps(selectedSteps.filter(id => id < stepId))
+    setSuccessMessage(t('stepDeleted'))
+    setErrorMessage(null)
+  }
+
   const handleReset = () => {
     const premiseSteps: ProofStepType[] = proofState.premises.map((premise, index) => ({
       id: index + 1,
@@ -787,6 +828,8 @@ export default function ProofAssistantPage() {
                     isSelectable={step.depth === proofState.currentDepth && !proofState.isComplete}
                     isSelected={selectedSteps.includes(step.id)}
                     onToggleSelect={handleToggleStepSelection}
+                    onDelete={handleDeleteStep}
+                    canDelete={step.rule !== 'Premise' && !proofState.isComplete}
                   />
                 ))}
               </Box>

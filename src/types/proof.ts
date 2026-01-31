@@ -7,8 +7,12 @@ export interface ProofStep {
   formula: string
   rule: string
   dependencies: number[] // IDs of steps this depends on
-  justification: string
+  justification: string // For display - can be translation key or formatted string
+  justificationKey?: string // Translation key (if provided, justification is used as fallback)
+  justificationParams?: Record<string, string | number> // Parameters for translation interpolation
   depth: number // For nested assumptions
+  branchId?: string // For tree-like proofs (e.g., "main", "left", "right")
+  parentBranchId?: string // Branch this was derived from
 }
 
 export interface ProofState {
@@ -17,6 +21,8 @@ export interface ProofState {
   steps: ProofStep[]
   currentDepth: number
   isComplete: boolean
+  activeBranches?: string[] // Currently open branches (e.g., for ∨E)
+  currentBranch?: string // Which branch we're working in
 }
 
 export interface Rule {

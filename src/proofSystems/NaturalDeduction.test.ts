@@ -417,4 +417,96 @@ describe('NaturalDeduction', () => {
       expect(nd.validateProof(state)).toBe(true)
     })
   })
+
+  describe('or_elim rule', () => {
+    it('checks applicability - requires a disjunction', () => {
+      const stateWithoutDisjunction: ProofState = {
+        goal: 'r',
+        premises: ['p'],
+        steps: [
+          { id: 1, formula: 'p', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+        ],
+        currentDepth: 0,
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.checkApplicability(orElimRule, stateWithoutDisjunction)
+
+      expect(result.applicable).toBe(false)
+      expect(result.reason).toBe('Need a disjunction (P∨Q) to apply this rule')
+    })
+
+    it('checks applicability - applicable when disjunction exists', () => {
+      const stateWithDisjunction: ProofState = {
+        goal: 'r',
+        premises: ['p | q'],
+        steps: [
+          { id: 1, formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+        ],
+        currentDepth: 0,
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.checkApplicability(orElimRule, stateWithDisjunction)
+
+      expect(result.applicable).toBe(true)
+    })
+
+    it('applies or_elim to create branching step', () => {
+      const state: ProofState = {
+        goal: 'r',
+        premises: ['p | q'],
+        steps: [
+          { id: 1, formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+        ],
+        currentDepth: 0,
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.applyRule(orElimRule, state, [1])
+
+      expect(result).not.toBeNull()
+      expect(result?.rule).toBe('∨ Elimination')
+      expect(result?.branchId).toBe('branch-start')
+      expect(result?.formula).toContain('p')
+      expect(result?.formula).toContain('q')
+    })
+
+    it('returns null when no step is selected', () => {
+      const state: ProofState = {
+        goal: 'r',
+        premises: ['p | q'],
+        steps: [
+          { id: 1, formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+        ],
+        currentDepth: 0,
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.applyRule(orElimRule, state, [])
+
+      expect(result).toBeNull()
+    })
+
+    it('returns null when selected step is not a disjunction', () => {
+      const state: ProofState = {
+        goal: 'r',
+        premises: ['p'],
+        steps: [
+          { id: 1, formula: 'p', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+        ],
+        currentDepth: 0,
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.applyRule(orElimRule, state, [1])
+
+      expect(result).toBeNull()
+    })
+  })
 })

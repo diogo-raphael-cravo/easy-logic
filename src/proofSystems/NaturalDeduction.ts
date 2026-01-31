@@ -175,6 +175,13 @@ export class NaturalDeduction implements ProofSystem {
       category: 'introduction',
       requiredSteps: 1,
     },
+    {
+      id: 'or_elim',
+      nameKey: 'ruleOrElim',
+      descriptionKey: 'ruleOrElimDesc',
+      category: 'elimination',
+      requiredSteps: 1,
+    },
   ]
 
   getRules(): Rule[] {
@@ -186,7 +193,11 @@ export class NaturalDeduction implements ProofSystem {
   }
 
   checkApplicability(rule: Rule, state: ProofState): ApplicableRule {
-    const availableSteps = state.steps.filter(step => step.depth === state.currentDepth)
+    const currentBranch = state.currentBranch || 'main'
+    const availableSteps = state.steps.filter(step => 
+      step.depth === state.currentDepth && 
+      (step.branchId === currentBranch || step.branchId === undefined || currentBranch === 'main')
+    )
 
     // Assume is always applicable
     if (rule.id === 'assume') {
@@ -200,6 +211,23 @@ export class NaturalDeduction implements ProofSystem {
         ...rule,
         applicable: hasOpenAssumption,
         reason: hasOpenAssumption ? undefined : 'No open assumption to close',
+      }
+    }
+
+    // Or elimination needs a disjunction
+    if (rule.id === 'or_elim') {
+      const hasDisjunction = state.steps.some(s => {
+        try {
+          const parsed = tokenizeAndParse(s.formula)
+          return parsed.type === 'or'
+        } catch {
+          return false
+        }
+      })
+      return {
+        ...rule,
+        applicable: hasDisjunction,
+        reason: hasDisjunction ? undefined : 'Need a disjunction (P∨Q) to apply this rule',
       }
     }
 
@@ -235,6 +263,7 @@ export class NaturalDeduction implements ProofSystem {
             rule: 'Assume',
             dependencies: [],
             justification: 'Assumption',
+            justificationKey: 'justificationAssumption',
             depth: state.currentDepth + 1,
           }
 
@@ -376,6 +405,32 @@ export class NaturalDeduction implements ProofSystem {
             dependencies: [assumption.id, conclusion.id],
             justification: `→I (${assumption.id}-${conclusion.id})`,
             depth: state.currentDepth - 1,
+          }
+        }
+
+        case 'or_elim': {
+          // Disjunction elimination (proof by cases)
+          // User selects a disjunction P∨Q, we create two branches with assumptions P and Q
+          if (selectedSteps.length !== 1) return null
+          const step = state.steps.find(s => s.id === selectedSteps[0])
+          if (!step) return null
+
+          const parsed = tokenizeAndParse(step.formula)
+          if (parsed.type !== 'or' || !parsed.left || !parsed.right) return null
+
+          const leftFormula = this.formulaToString(parsed.left)
+          const rightFormula = this.formulaToString(parsed.right)
+
+          // Return special step that indicates branching should start
+          // The UI will handle creating the actual branches
+          return {
+            id: newId,
+            formula: `[${leftFormula}] | [${rightFormula}]`,
+            rule: '∨ Elimination',
+            dependencies: selectedSteps,
+            justification: `∨E (${selectedSteps[0]}) - prove same result from both ${leftFormula} and ${rightFormula}`,
+            depth: state.currentDepth,
+            branchId: 'branch-start',
           }
         }
 

@@ -125,8 +125,8 @@
   "ruleDoubleNeg": "Dupla Negação",
   "ruleDoubleNegDesc": "De ¬¬P, derivar P",
   "ruleImplIntro": "→ Introdução",
-  "ruleImplIntroDesc": "Fechar suposição: se você supôs P e derivou Q, conclua P→Q",
-  "kbEmpty": "Vazio",
+  "ruleImplIntroDesc": "Fechar suposição: se você supôs P e derivou Q, conclua P→Q",  "ruleOrElim": "∨ Eliminação (Prova por Casos)",
+  "ruleOrElimDesc": "De P∨Q, inicie dois ramos: assuma P em um, assuma Q no outro",  "kbEmpty": "Vazio",
   "kbEmptyDesc": "Sem premissas - prove usando apenas lógica",
   "kbModusPonens": "Modus Ponens",
   "kbModusPonensDesc": "Dado p e p→q, derive q",
@@ -157,5 +157,15 @@
   "goalExtractRight": "Extrair direita",
   "goalExtractRightDesc": "Use ∧ Eliminação (Dir)",
   "ariaBack": "voltar",
-  "ariaNewProof": "nova prova"
+  "ariaNewProof": "nova prova",
+  "deleteStep": "Excluir passo",
+  "cannotDeletePremise": "Não é possível excluir uma premissa",
+  "cannotDeleteDependency": "Não é possível excluir: outros passos dependem deste",
+  "stepDeleted": "Passo excluído",
+  "branch": "Ramo",
+  "mainProof": "Prova Principal",
+  "leftBranch": "Ramo Esquerdo",
+  "rightBranch": "Ramo Direito",
+  "switchBranch": "Mudar para ramo",
+  "justificationAssumption": "Suposição"
 }

@@ -2,7 +2,9 @@
  * Component for displaying a single proof step
  */
 
-import { Box, Paper, Typography, Checkbox } from '@mui/material'
+import { Box, Paper, Typography, Checkbox, IconButton, Tooltip } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { useTranslation } from 'react-i18next'
 import { ProofStep as ProofStepType } from '../types/proof'
 import { FormulaDisplay } from './FormulaDisplay'
 import { parseFormula } from '../utils/formulaParser'
@@ -12,6 +14,8 @@ interface ProofStepProps {
   isSelectable: boolean
   isSelected: boolean
   onToggleSelect: (id: number) => void
+  onDelete?: (id: number) => void
+  canDelete?: boolean
 }
 
 export default function ProofStep({
@@ -19,9 +23,13 @@ export default function ProofStep({
   isSelectable,
   isSelected,
   onToggleSelect,
+  onDelete,
+  canDelete = false,
 }: ProofStepProps) {
+  const { t } = useTranslation()
   const indentation = step.depth * 16 // 16px per depth level (reduced from 24)
   const isPremise = step.rule === 'Premise'
+  const isBranchStart = step.branchId === 'branch-start'
   
   // Convert formula to LaTeX for proper rendering
   const { latex, error } = parseFormula(step.formula)
@@ -38,9 +46,15 @@ export default function ProofStep({
         gap: { xs: 1, sm: 2 },
         flexWrap: { xs: 'wrap', sm: 'nowrap' },
         cursor: isSelectable ? 'pointer' : 'default',
-        bgcolor: isSelected ? 'action.selected' : isPremise ? 'success.light' : 'background.paper',
-        borderLeft: isPremise ? '4px solid' : 'none',
-        borderLeftColor: isPremise ? 'success.main' : 'transparent',
+        bgcolor: isSelected 
+          ? 'action.selected' 
+          : isPremise 
+            ? 'success.light' 
+            : isBranchStart 
+              ? 'warning.light' 
+              : 'background.paper',
+        borderLeft: isPremise ? '4px solid' : isBranchStart ? '4px solid' : 'none',
+        borderLeftColor: isPremise ? 'success.main' : isBranchStart ? 'warning.main' : 'transparent',
         '&:hover': isSelectable
           ? {
               bgcolor: 'action.hover',
@@ -73,11 +87,34 @@ export default function ProofStep({
         minWidth: { xs: 'auto', sm: 120 },
         width: { xs: '100%', sm: 'auto' },
         mt: { xs: 0.5, sm: 0 },
-        pl: { xs: isSelectable ? 4 : 0, sm: 0 }
+        pl: { xs: isSelectable ? 4 : 0, sm: 0 },
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 1,
       }}>
         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-          {step.justification}
+          {step.justificationKey ? t(step.justificationKey, step.justificationParams) : step.justification}
         </Typography>
+        {canDelete && onDelete && (
+          <Tooltip title={t('deleteStep')}>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(step.id)
+              }}
+              sx={{ 
+                opacity: 0.6, 
+                '&:hover': { opacity: 1, color: 'error.main' },
+                p: 0.5,
+              }}
+              aria-label={t('deleteStep')}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
     </Paper>
   )

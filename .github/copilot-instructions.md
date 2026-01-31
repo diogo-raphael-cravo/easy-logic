@@ -36,15 +36,29 @@ For non-React code (like `NaturalDeduction.ts`), use `nameKey`/`descriptionKey` 
 Translation files: `src/i18n/locales/en.json` and `pt-BR.json` - **must have identical keys**.
 
 ## Pre-Commit Quality Gates
-The hook (`.husky/pre-commit.cjs`) runs 5 checks - all must pass:
+The hook (`.husky/pre-commit.cjs`) runs 4 checks - all must pass:
 
-1. **Tests** - `npm test` must pass
-2. **Coverage** - ≥80% statement coverage
-3. **Duplication** - ≤1% code duplication (jscpd)
-4. **Hardcoded Strings** - No untranslated text in JSX (Step 4 + 4b checks key sync)
-5. **Build** - `npm run build` must succeed
+1. **Tests + Coverage** - `vitest --coverage` must pass with ≥80% statement coverage
+2. **Duplication** - ≤1% code duplication (jscpd)
+3. **Hardcoded Strings** - No untranslated text in JSX + translation file key sync check
+4. **Build** - `npm run build` must succeed
 
 Run manually: `node .husky/pre-commit.cjs`
+
+## Available Proof Rules
+The Natural Deduction system (`src/proofSystems/NaturalDeduction.ts`) includes:
+
+| Rule | ID | Description |
+|------|----|-------------|
+| Assume | `assume` | Start an assumption (subproof) |
+| Modus Ponens | `mp` | From P and P→Q, derive Q |
+| Modus Tollens | `mt` | From P→Q and ¬Q, derive ¬P |
+| ∧ Introduction | `and_intro` | From P and Q, derive P∧Q |
+| ∧ Elimination (L/R) | `and_elim_left`, `and_elim_right` | From P∧Q, derive P or Q |
+| ∨ Introduction (L/R) | `or_intro_left`, `or_intro_right` | From P, derive P∨Q |
+| ∨ Elimination | `or_elim` | Proof by cases: from P∨Q, start branches assuming P and Q |
+| Double Negation | `double_neg` | From ¬¬P, derive P |
+| → Introduction | `impl_intro` | Close assumption: if assumed P and derived Q, conclude P→Q |
 
 ## Key Commands
 ```bash

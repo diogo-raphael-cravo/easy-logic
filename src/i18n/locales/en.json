@@ -126,6 +126,8 @@
   "ruleDoubleNegDesc": "From ¬¬P, derive P",
   "ruleImplIntro": "→ Introduction",
   "ruleImplIntroDesc": "Close assumption: if you assumed P and derived Q, conclude P→Q",
+  "ruleOrElim": "∨ Elimination (Proof by Cases)",
+  "ruleOrElimDesc": "From P∨Q, start two branches: assume P in one, assume Q in the other",
   "kbEmpty": "Empty",
   "kbEmptyDesc": "No premises - prove using only logic",
   "kbModusPonens": "Modus Ponens",
@@ -157,5 +159,15 @@
   "goalExtractRight": "Extract right",
   "goalExtractRightDesc": "Use ∧ Elimination (Right)",
   "ariaBack": "back",
-  "ariaNewProof": "new proof"
+  "ariaNewProof": "new proof",
+  "deleteStep": "Delete step",
+  "cannotDeletePremise": "Cannot delete a premise",
+  "cannotDeleteDependency": "Cannot delete: other steps depend on this one",
+  "stepDeleted": "Step deleted",
+  "branch": "Branch",
+  "mainProof": "Main Proof",
+  "leftBranch": "Left Branch",
+  "rightBranch": "Right Branch",
+  "switchBranch": "Switch to branch",
+  "justificationAssumption": "Assumption"
 }
