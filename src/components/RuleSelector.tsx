@@ -18,7 +18,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { ApplicableRule } from '../types/proof'
+import { ApplicableRule } from '../logic/proof'
 
 interface RuleSelectorProps {
   rules: ApplicableRule[]

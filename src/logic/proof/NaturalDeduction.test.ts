@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { NaturalDeduction } from './NaturalDeduction'
-import { ProofState } from '../types/proof'
+import { ProofState } from './types'
 
 describe('NaturalDeduction', () => {
   const nd = new NaturalDeduction()
@@ -32,6 +32,8 @@ describe('NaturalDeduction', () => {
         premises: [],
         steps: [],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [1],
         isComplete: false,
       }
 
@@ -47,6 +49,8 @@ describe('NaturalDeduction', () => {
         premises: [],
         steps: [],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [1],
         isComplete: false,
       }
 
@@ -64,6 +68,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: 'p',
             rule: 'Assume',
             dependencies: [],
@@ -72,6 +77,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 1,
+        currentSubproofId: '',
+        nextStepInSubproof: [1, 2],
         isComplete: false,
       }
 
@@ -89,6 +96,8 @@ describe('NaturalDeduction', () => {
         premises: [],
         steps: [],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [1],
         isComplete: false,
       }
 
@@ -108,6 +117,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: 'p',
             rule: 'Assume',
             dependencies: [],
@@ -116,6 +126,7 @@ describe('NaturalDeduction', () => {
           },
           {
             id: 2,
+            lineNumber: '2',
             formula: 'q',
             rule: 'Assume',
             dependencies: [],
@@ -124,6 +135,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [3],
         isComplete: false,
       }
 
@@ -142,6 +155,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: 'p ^ q',
             rule: 'Assume',
             dependencies: [],
@@ -150,6 +164,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 
@@ -168,6 +184,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: 'p',
             rule: 'Assume',
             dependencies: [],
@@ -176,6 +193,7 @@ describe('NaturalDeduction', () => {
           },
           {
             id: 2,
+            lineNumber: '2',
             formula: 'p -> q',
             rule: 'Assume',
             dependencies: [],
@@ -184,6 +202,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [3],
         isComplete: false,
       }
 
@@ -202,6 +222,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: '~~p',
             rule: 'Assume',
             dependencies: [],
@@ -210,6 +231,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 
@@ -220,6 +243,164 @@ describe('NaturalDeduction', () => {
       expect(result?.formula).toBe('p')
       expect(result?.rule).toBe('Double Negation')
     })
+
+    it('applies conjunction elimination right', () => {
+      const state: ProofState = {
+        goal: 'q',
+        premises: [],
+        steps: [
+          {
+            id: 1,
+            lineNumber: '1',
+            formula: 'p ^ q',
+            rule: 'Assume',
+            dependencies: [],
+            justification: 'Assumption',
+            depth: 0,
+          },
+        ],
+        currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
+        isComplete: false,
+      }
+
+      const andElimRightRule = nd.getRules().find((r) => r.id === 'and_elim_right')!
+      const result = nd.applyRule(andElimRightRule, state, [1])
+
+      expect(result).not.toBeNull()
+      expect(result?.formula).toBe('q')
+      expect(result?.rule).toBe('∧ Elimination')
+    })
+
+    it('applies disjunction introduction left', () => {
+      const state: ProofState = {
+        goal: 'p | q',
+        premises: [],
+        steps: [
+          {
+            id: 1,
+            lineNumber: '1',
+            formula: 'p',
+            rule: 'Assume',
+            dependencies: [],
+            justification: 'Assumption',
+            depth: 0,
+          },
+        ],
+        currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
+        isComplete: false,
+      }
+
+      const orIntroLeftRule = nd.getRules().find((r) => r.id === 'or_intro_left')!
+      const result = nd.applyRule(orIntroLeftRule, state, [1], 'q')
+
+      expect(result).not.toBeNull()
+      expect(result?.formula).toBe('(p) | (q)')
+      expect(result?.rule).toBe('∨ Introduction')
+    })
+
+    it('applies disjunction introduction right', () => {
+      const state: ProofState = {
+        goal: 'q | p',
+        premises: [],
+        steps: [
+          {
+            id: 1,
+            lineNumber: '1',
+            formula: 'p',
+            rule: 'Assume',
+            dependencies: [],
+            justification: 'Assumption',
+            depth: 0,
+          },
+        ],
+        currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
+        isComplete: false,
+      }
+
+      const orIntroRightRule = nd.getRules().find((r) => r.id === 'or_intro_right')!
+      const result = nd.applyRule(orIntroRightRule, state, [1], 'q')
+
+      expect(result).not.toBeNull()
+      expect(result?.formula).toBe('(q) | (p)')
+      expect(result?.rule).toBe('∨ Introduction')
+    })
+
+    it('applies implication introduction', () => {
+      const state: ProofState = {
+        goal: 'p -> p',
+        premises: [],
+        steps: [
+          {
+            id: 1,
+            lineNumber: '1',
+            formula: 'p',
+            rule: 'Assume',
+            dependencies: [],
+            justification: 'Assumption',
+            depth: 1,
+            isSubproofStart: true,
+          },
+        ],
+        currentDepth: 1,
+        currentSubproofId: '',
+        nextStepInSubproof: [1, 2],
+        isComplete: false,
+      }
+
+      const implIntroRule = nd.getRules().find((r) => r.id === 'impl_intro')!
+      const result = nd.applyRule(implIntroRule, state, [])
+
+      expect(result).not.toBeNull()
+      expect(result?.formula).toBe('(p) -> (p)')
+      expect(result?.rule).toBe('→ Introduction')
+      expect(result?.depth).toBe(0)
+      expect(result?.isSubproofEnd).toBe(true)
+    })
+
+    it('applies modus tollens', () => {
+      const state: ProofState = {
+        goal: '~p',
+        premises: [],
+        steps: [
+          {
+            id: 1,
+            lineNumber: '1',
+            formula: 'p -> q',
+            rule: 'Premise',
+            dependencies: [],
+            justification: 'Given',
+            depth: 0,
+          },
+          {
+            id: 2,
+            lineNumber: '2',
+            formula: '~q',
+            rule: 'Premise',
+            dependencies: [],
+            justification: 'Given',
+            depth: 0,
+          },
+        ],
+        currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [3],
+        isComplete: false,
+      }
+
+      const mtRule = nd.getRules().find((r) => r.id === 'mt')!
+      const result = nd.applyRule(mtRule, state, [1, 2])
+
+      expect(result).not.toBeNull()
+      expect(result?.formula).toContain('~')
+      expect(result?.formula).toContain('p')
+      expect(result?.rule).toBe('Modus Tollens')
+    })
   })
 
   describe('validateProof', () => {
@@ -229,6 +410,8 @@ describe('NaturalDeduction', () => {
         premises: [],
         steps: [],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [1],
         isComplete: false,
       }
 
@@ -242,6 +425,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: 'p',
             rule: 'Assume',
             dependencies: [],
@@ -250,6 +434,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 1,
+        currentSubproofId: '',
+        nextStepInSubproof: [1, 2],
         isComplete: false,
       }
 
@@ -263,6 +449,7 @@ describe('NaturalDeduction', () => {
         steps: [
           {
             id: 1,
+            lineNumber: '1',
             formula: 'p',
             rule: 'Assume',
             dependencies: [],
@@ -271,6 +458,7 @@ describe('NaturalDeduction', () => {
           },
           {
             id: 2,
+            lineNumber: '2',
             formula: 'p -> p',
             rule: '→ Introduction',
             dependencies: [1],
@@ -279,6 +467,8 @@ describe('NaturalDeduction', () => {
           },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [3],
         isComplete: false,
       }
 
@@ -306,6 +496,7 @@ describe('NaturalDeduction', () => {
       // Create initial state with premises as steps
       const premiseSteps = kb.premises.map((premise, idx) => ({
         id: idx + 1,
+        lineNumber: String(idx + 1),
         formula: premise,
         rule: 'Premise' as const,
         dependencies: [] as number[],
@@ -318,6 +509,8 @@ describe('NaturalDeduction', () => {
         premises: kb.premises,
         steps: premiseSteps,
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [premiseSteps.length + 1],
         isComplete: false,
       }
 
@@ -345,6 +538,7 @@ describe('NaturalDeduction', () => {
       
       const premiseSteps = kb.premises.map((premise, idx) => ({
         id: idx + 1,
+        lineNumber: String(idx + 1),
         formula: premise,
         rule: 'Premise' as const,
         dependencies: [] as number[],
@@ -357,6 +551,8 @@ describe('NaturalDeduction', () => {
         premises: kb.premises,
         steps: premiseSteps,
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [premiseSteps.length + 1],
         isComplete: false,
       }
 
@@ -382,6 +578,7 @@ describe('NaturalDeduction', () => {
       
       const premiseSteps = kb.premises.map((premise, idx) => ({
         id: idx + 1,
+        lineNumber: String(idx + 1),
         formula: premise,
         rule: 'Premise' as const,
         dependencies: [] as number[],
@@ -394,6 +591,8 @@ describe('NaturalDeduction', () => {
         premises: kb.premises,
         steps: premiseSteps,  // [p, p->q, q->r]
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [premiseSteps.length + 1],
         isComplete: false,
       }
 
@@ -424,9 +623,11 @@ describe('NaturalDeduction', () => {
         goal: 'r',
         premises: ['p'],
         steps: [
-          { id: 1, formula: 'p', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+          { id: 1, lineNumber: '1', formula: 'p', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 
@@ -442,9 +643,11 @@ describe('NaturalDeduction', () => {
         goal: 'r',
         premises: ['p | q'],
         steps: [
-          { id: 1, formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+          { id: 1, lineNumber: '1', formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 
@@ -459,9 +662,11 @@ describe('NaturalDeduction', () => {
         goal: 'r',
         premises: ['p | q'],
         steps: [
-          { id: 1, formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+          { id: 1, lineNumber: '1', formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 
@@ -470,7 +675,6 @@ describe('NaturalDeduction', () => {
 
       expect(result).not.toBeNull()
       expect(result?.rule).toBe('∨ Elimination')
-      expect(result?.branchId).toBe('branch-start')
       expect(result?.formula).toContain('p')
       expect(result?.formula).toContain('q')
     })
@@ -480,9 +684,11 @@ describe('NaturalDeduction', () => {
         goal: 'r',
         premises: ['p | q'],
         steps: [
-          { id: 1, formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+          { id: 1, lineNumber: '1', formula: 'p | q', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 
@@ -497,9 +703,11 @@ describe('NaturalDeduction', () => {
         goal: 'r',
         premises: ['p'],
         steps: [
-          { id: 1, formula: 'p', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
+          { id: 1, lineNumber: '1', formula: 'p', rule: 'Premise', dependencies: [], justification: 'Given', depth: 0 },
         ],
         currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
         isComplete: false,
       }
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateTruthTable } from './truthTableGenerator'
+import { generateTruthTable } from './generator'
 
 describe('truthTableGenerator', () => {
   it('should generate truth table for single variable', () => {

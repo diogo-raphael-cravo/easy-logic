@@ -1,11 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import ProofStep from './ProofStep'
-import { ProofStep as ProofStepType } from '../types/proof'
+import { ProofStep as ProofStepType } from '../logic/proof'
 
 describe('ProofStep', () => {
   const mockStep: ProofStepType = {
     id: 1,
+    lineNumber: '1',
     formula: 'p',
     rule: 'Assume',
     dependencies: [],
@@ -104,7 +105,10 @@ describe('ProofStep', () => {
   })
 
   it('renders branch start step', () => {
-    const branchStep = { ...mockStep, branchId: 'branch-start' as const }
+    const branchStep: ProofStepType = { 
+      ...mockStep, 
+      rule: '∨ Elimination'
+    }
     render(
       <ProofStep
         step={branchStep}
@@ -116,6 +120,5 @@ describe('ProofStep', () => {
 
     // Branch start step renders correctly
     expect(screen.getByText('1.')).toBeInTheDocument()
-    expect(screen.getByText('Assumption')).toBeInTheDocument()
   })
 })

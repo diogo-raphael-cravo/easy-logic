@@ -1,8 +1,10 @@
 /**
  * Generate truth table for a propositional logic formula
+ * 
+ * This is pure business logic - no React or UI dependencies.
  */
 
-import { tokenizeAndParse, Formula } from './formulaCommon'
+import { tokenizeAndParse, Formula } from '../formula/common'
 
 function getVariables(formula: Formula): Set<string> {
   const vars = new Set<string>()
@@ -22,7 +24,7 @@ function getVariables(formula: Formula): Set<string> {
   return vars
 }
 
-function evaluateFormula(formula: Formula, assignment: Record<string, boolean>): boolean {
+export function evaluateFormula(formula: Formula, assignment: Record<string, boolean>): boolean {
   switch (formula.type) {
     case 'var':
       return assignment[formula.value!] ?? false
@@ -75,4 +77,12 @@ export function generateTruthTable(formulaString: string): TruthTableRow[] {
   }
 
   return rows
+}
+
+/**
+ * Get the variables from a formula string
+ */
+export function getFormulaVariables(formulaString: string): string[] {
+  const formula = tokenizeAndParse(formulaString)
+  return Array.from(getVariables(formula)).sort()
 }

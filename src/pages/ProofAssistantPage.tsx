@@ -95,8 +95,8 @@ const confettiColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '
 const shapes = ['●', '■', '▲', '★', '♦', '♥', '✦', '✧']
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ProofState, ApplicableRule, ProofStep as ProofStepType } from '../types/proof'
-import { NaturalDeduction } from '../proofSystems/NaturalDeduction'
+import { ProofState, ApplicableRule, ProofStep as ProofStepType } from '../logic/proof'
+import { NaturalDeduction } from '../logic/proof'
 import ProofStep from '../components/ProofStep'
 import RuleSelector from '../components/RuleSelector'
 
@@ -117,6 +117,8 @@ export default function ProofAssistantPage() {
     premises: [],
     steps: [],
     currentDepth: 0,
+    currentSubproofId: '',
+    nextStepInSubproof: [1],
     isComplete: false,
   })
   const [selectedSteps, setSelectedSteps] = useState<number[]>([])
@@ -185,6 +187,7 @@ export default function ProofAssistantPage() {
     
     const premiseSteps: ProofStepType[] = kbPremises.map((premise, index) => ({
       id: index + 1,
+      lineNumber: String(index + 1),
       formula: premise,
       rule: 'Premise',
       dependencies: [],
@@ -197,6 +200,8 @@ export default function ProofAssistantPage() {
       premises: kbPremises,
       steps: premiseSteps,
       currentDepth: 0,
+      currentSubproofId: '',
+      nextStepInSubproof: [premiseSteps.length + 1],
       isComplete: false,
     })
     setGoalDialogOpen(false)
@@ -313,6 +318,8 @@ export default function ProofAssistantPage() {
       ...proofState,
       steps: stepsToKeep,
       currentDepth: newDepth,
+      currentSubproofId: proofState.currentSubproofId,
+      nextStepInSubproof: proofState.nextStepInSubproof,
       isComplete: false,
     })
     setSelectedSteps(selectedSteps.filter(id => id < stepId))
@@ -323,6 +330,7 @@ export default function ProofAssistantPage() {
   const handleReset = () => {
     const premiseSteps: ProofStepType[] = proofState.premises.map((premise, index) => ({
       id: index + 1,
+      lineNumber: String(index + 1),
       formula: premise,
       rule: 'Premise',
       dependencies: [],
@@ -335,6 +343,8 @@ export default function ProofAssistantPage() {
       premises: proofState.premises,
       steps: premiseSteps,
       currentDepth: 0,
+      currentSubproofId: '',
+      nextStepInSubproof: [premiseSteps.length + 1],
       isComplete: false,
     })
     setSelectedSteps([])

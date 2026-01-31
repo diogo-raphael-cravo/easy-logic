@@ -1,18 +1,22 @@
 /**
  * Type definitions for the proof assistant
+ * 
+ * This is pure business logic - no React or UI dependencies.
  */
 
 export interface ProofStep {
-  id: number
+  id: number // Sequential ID for internal tracking
+  lineNumber: string // Fitch-style display number (e.g., "1", "2.1", "2.2.1")
   formula: string
   rule: string
   dependencies: number[] // IDs of steps this depends on
   justification: string // For display - can be translation key or formatted string
   justificationKey?: string // Translation key (if provided, justification is used as fallback)
   justificationParams?: Record<string, string | number> // Parameters for translation interpolation
-  depth: number // For nested assumptions
-  branchId?: string // For tree-like proofs (e.g., "main", "left", "right")
-  parentBranchId?: string // Branch this was derived from
+  depth: number // For nested subproofs (0 = main, 1 = first subproof, etc.)
+  subproofId?: string // Which subproof this step belongs to (e.g., "2", "2.1")
+  isSubproofStart?: boolean // True if this step opens a new subproof (e.g., Assume)
+  isSubproofEnd?: boolean // True if this step closes a subproof (e.g., →I)
 }
 
 export interface ProofState {
@@ -20,9 +24,18 @@ export interface ProofState {
   premises: string[] // Initial assumptions/axioms
   steps: ProofStep[]
   currentDepth: number
+  currentSubproofId: string // Current subproof we're in (e.g., "", "2", "2.1")
+  nextStepInSubproof: number[] // Stack of next step numbers per depth level
   isComplete: boolean
-  activeBranches?: string[] // Currently open branches (e.g., for ∨E)
-  currentBranch?: string // Which branch we're working in
+  // For ∨E: parallel branches that both need to derive the same conclusion
+  orElimBranches?: {
+    disjunctionStepId: number
+    leftBranchId: string
+    rightBranchId: string
+    targetConclusion?: string // What both branches must derive
+    leftComplete: boolean
+    rightComplete: boolean
+  }
 }
 
 export interface Rule {

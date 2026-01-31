@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TruthTable } from './TruthTable'
-import type { TruthTableRow } from '../utils/truthTableGenerator'
+import type { TruthTableRow } from '../logic/truthTable'
 
 describe('TruthTable', () => {
   const mockRows: TruthTableRow[] = [

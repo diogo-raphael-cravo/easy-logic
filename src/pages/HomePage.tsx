@@ -5,7 +5,7 @@ import { useMediaQuery, useTheme } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { FormulaInput } from '../components/FormulaInput'
 import { FormulaDisplay } from '../components/FormulaDisplay'
-import { parseFormula } from '../utils/formulaParser'
+import { parseFormula } from '../logic/formula'
 import { FormulaResult } from '../App'
 import { useExampleContext } from '../context/ExampleContext'
 

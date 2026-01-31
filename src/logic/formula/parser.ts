@@ -1,6 +1,8 @@
 /**
  * Parse propositional logic formula and convert to LaTeX
  * 
+ * This is pure business logic - no React or UI dependencies.
+ * 
  * Syntax:
  * ^ : AND
  * | : OR
@@ -12,9 +14,9 @@
  * p, proposition, etc : variables
  */
 
-import { tokenizeAndParse, Formula } from './formulaCommon'
+import { tokenizeAndParse, Formula } from './common'
 
-function formulaToLatex(formula: Formula): string {
+export function formulaToLatex(formula: Formula): string {
   switch (formula.type) {
     case 'var':
       return formula.value!

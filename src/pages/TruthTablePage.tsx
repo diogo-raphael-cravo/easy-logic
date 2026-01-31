@@ -4,7 +4,7 @@ import { InlineMath } from 'react-katex'
 import 'katex/dist/katex.min.css'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { TruthTable } from '../components/TruthTable'
-import { generateTruthTable } from '../utils/truthTableGenerator'
+import { generateTruthTable } from '../logic/truthTable'
 import { FormulaResult } from '../App'
 
 export function TruthTablePage() {

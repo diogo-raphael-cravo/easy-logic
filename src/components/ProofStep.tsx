@@ -5,9 +5,9 @@
 import { Box, Paper, Typography, Checkbox, IconButton, Tooltip } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useTranslation } from 'react-i18next'
-import { ProofStep as ProofStepType } from '../types/proof'
+import { ProofStep as ProofStepType } from '../logic/proof'
 import { FormulaDisplay } from './FormulaDisplay'
-import { parseFormula } from '../utils/formulaParser'
+import { parseFormula } from '../logic/formula'
 
 interface ProofStepProps {
   step: ProofStepType
@@ -29,7 +29,7 @@ export default function ProofStep({
   const { t } = useTranslation()
   const indentation = step.depth * 16 // 16px per depth level (reduced from 24)
   const isPremise = step.rule === 'Premise'
-  const isBranchStart = step.branchId === 'branch-start'
+  const isBranchStart = step.rule === '∨ Elimination'
   
   // Convert formula to LaTeX for proper rendering
   const { latex, error } = parseFormula(step.formula)
@@ -72,9 +72,9 @@ export default function ProofStep({
         />
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: 30, sm: 40 } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: 30, sm: 50 } }}>
         <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-          {step.id}.
+          {step.lineNumber || step.id}.
         </Typography>
       </Box>
 

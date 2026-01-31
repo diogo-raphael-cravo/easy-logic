@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseFormula } from './formulaParser'
+import { parseFormula } from './parser'
 
 describe('formulaParser', () => {
   describe('parseFormula - Basic cases', () => {

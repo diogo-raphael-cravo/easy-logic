@@ -5,9 +5,25 @@ A propositional logic formula renderer and proof assistant with i18n support (En
 
 ## Architecture
 
+### Folder Structure
+The codebase separates **business logic** from **UI components** for better testability:
+
+```
+src/
+├── logic/           # Pure business logic (no React dependencies)
+│   ├── formula/     # Formula parsing: tokenizer, parser, LaTeX conversion
+│   ├── proof/       # Proof systems: types, NaturalDeduction
+│   └── truthTable/  # Truth table generation
+├── components/      # React UI components
+├── pages/           # Page-level React components
+├── context/         # React context providers
+└── i18n/            # Internationalization
+```
+
 ### Core Components
-- **Formula Parser** (`src/utils/formulaParser.ts`, `formulaCommon.ts`): Tokenizes logic formulas → AST → LaTeX (rendered via KaTeX)
-- **Proof Systems** (`src/proofSystems/`): Strategy pattern for Natural Deduction rules. Add new proof systems by implementing `ProofSystem` interface in `src/types/proof.ts`
+- **Formula Parser** (`src/logic/formula/`): Tokenizes logic formulas → AST → LaTeX (rendered via KaTeX)
+- **Proof Systems** (`src/logic/proof/`): Strategy pattern for Natural Deduction rules. Add new proof systems by implementing `ProofSystem` interface in `src/logic/proof/types.ts`
+- **Truth Table** (`src/logic/truthTable/`): Generates truth tables from formulas
 - **Pages**: `HomePage` (formula input), `TruthTablePage`, `ProofAssistantPage`
 
 ### i18n Pattern (CRITICAL)
@@ -46,7 +62,7 @@ The hook (`.husky/pre-commit.cjs`) runs 4 checks - all must pass:
 Run manually: `node .husky/pre-commit.cjs`
 
 ## Available Proof Rules
-The Natural Deduction system (`src/proofSystems/NaturalDeduction.ts`) includes:
+The Natural Deduction system (`src/logic/proof/NaturalDeduction.ts`) includes:
 
 | Rule | ID | Description |
 |------|----|-------------|
