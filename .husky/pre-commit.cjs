@@ -24,11 +24,27 @@ function printStatus(passed, message) {
 
 console.log('🔍 Running pre-commit checks...\n');
 
-// Step 1: Run tests
-console.log('Step 1: Running tests...');
+// Step 1: Run tests with coverage
+console.log('Step 1: Running tests with coverage...');
 try {
-  execSync('npm test', { stdio: 'pipe' });
-  printStatus(true, 'Tests passed');
+  const testOutput = execSync('npx vitest run --coverage', { 
+    stdio: 'pipe',
+    encoding: 'utf-8'
+  });
+  
+  // Parse coverage percentage
+  const coverageMatch = testOutput.match(/All files\s+\|\s+([\d.]+)/);
+  const coverage = coverageMatch ? parseFloat(coverageMatch[1]) : 0;
+  
+  const THRESHOLD = 80;
+  if (coverage < THRESHOLD) {
+    printStatus(false, `Tests passed but coverage too low: ${coverage}% (minimum: ${THRESHOLD}%)`);
+    console.log(testOutput.split('\n').slice(-20).join('\n'));
+    log(colors.red, `\n❌ Commit aborted: Code coverage must be at least ${THRESHOLD}%`);
+    process.exit(1);
+  }
+  
+  printStatus(true, `Tests passed with ${coverage}% coverage (>= ${THRESHOLD}%)`);
 } catch (error) {
   printStatus(false, 'Tests failed');
   console.log(error.stdout?.toString().slice(-1000) || '');
@@ -37,37 +53,8 @@ try {
 }
 console.log('');
 
-// Step 2: Check coverage
-console.log('Step 2: Checking code coverage...');
-try {
-  const coverageOutput = execSync('npx vitest run --coverage', { 
-    stdio: 'pipe',
-    encoding: 'utf-8'
-  });
-  
-  // Parse coverage percentage
-  const coverageMatch = coverageOutput.match(/All files\s+\|\s+([\d.]+)/);
-  const coverage = coverageMatch ? parseFloat(coverageMatch[1]) : 0;
-  
-  const THRESHOLD = 80;
-  if (coverage < THRESHOLD) {
-    printStatus(false, `Coverage too low: ${coverage}% (minimum: ${THRESHOLD}%)`);
-    console.log(coverageOutput.split('\n').slice(-20).join('\n'));
-    log(colors.red, `\n❌ Commit aborted: Code coverage must be at least ${THRESHOLD}%`);
-    process.exit(1);
-  }
-  
-  printStatus(true, `Coverage check passed (${coverage}% >= ${THRESHOLD}%)`);
-} catch (error) {
-  printStatus(false, 'Coverage check failed');
-  console.log(error.stdout?.toString().slice(-1000) || '');
-  log(colors.red, '\n❌ Commit aborted: Could not determine coverage');
-  process.exit(1);
-}
-console.log('');
-
-// Step 3: Check code duplication
-console.log('Step 3: Checking code duplication...');
+// Step 2: Check code duplication
+console.log('Step 2: Checking code duplication...');
 try {
   // Run jscpd - it will exit with error code if threshold is exceeded
   execSync('npx jscpd src --reporters json --silent', { 
@@ -116,8 +103,8 @@ try {
 }
 console.log('');
 
-// Step 4: Check for hardcoded strings
-console.log('Step 4: Checking for hardcoded strings in JSX...');
+// Step 3: Check for hardcoded strings
+console.log('Step 3: Checking for hardcoded strings in JSX...');
 try {
   const srcDir = path.join(process.cwd(), 'src');
   const hardcodedStrings = [];
@@ -229,7 +216,7 @@ try {
   
   // Check translation file key consistency
   console.log('');
-  console.log('Step 4b: Checking translation file consistency...');
+  console.log('Step 3b: Checking translation file consistency...');
   
   const localesDir = path.join(srcDir, 'i18n', 'locales');
   const translationFiles = fs.readdirSync(localesDir).filter(f => f.endsWith('.json'));
@@ -286,8 +273,8 @@ try {
 }
 console.log('');
 
-// Step 5: Build check
-console.log('Step 5: Building project...');
+// Step 4: Build check
+console.log('Step 4: Building project...');
 try {
   const buildOutput = execSync('npm run build', { 
     stdio: 'pipe',

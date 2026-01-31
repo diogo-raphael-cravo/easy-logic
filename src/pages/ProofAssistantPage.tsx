@@ -301,15 +301,6 @@ export default function ProofAssistantPage() {
     setSuccessMessage(null)
   }
 
-  const handleNewProof = () => {
-    setGoalDialogOpen(true)
-    setCustomGoal('')
-    setSelectedKB('empty')
-    setSelectedSteps([])
-    setErrorMessage(null)
-    setSuccessMessage(null)
-  }
-
   const knowledgeBases = proofSystem.getKnowledgeBases()
 
   // Provide guided hints based on the current state
@@ -389,14 +380,6 @@ export default function ProofAssistantPage() {
         <Typography variant="h4" component="h1" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           {t('proofAssistant')}
         </Typography>
-        <IconButton
-          onClick={handleNewProof}
-          aria-label={t('ariaNewProof')}
-          color="primary"
-          sx={{ ml: 'auto' }}
-        >
-          <Refresh />
-        </IconButton>
       </Box>
 
       {/* Goal Selection Dialog */}
