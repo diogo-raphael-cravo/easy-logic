@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { NaturalDeduction } from './NaturalDeduction'
 import { ProofState, RULE_KEYS } from './types'
+import { tokenizeAndParse } from '../formula/common'
 
 describe('NaturalDeduction', () => {
   const nd = new NaturalDeduction()
@@ -716,6 +717,54 @@ describe('NaturalDeduction', () => {
       const result = nd.applyRule(orElimRule, state, [1])
 
       expect(result).toBeNull()
+    })
+
+    it('should handle LEM-generated formulas like (p | ~p) | ~(p | ~p)', () => {
+      const state: ProofState = {
+        goal: 'r',
+        premises: [],
+        steps: [
+          { id: 1, lineNumber: '1', formula: '(p | ~p) | ~(p | ~p)', ruleKey: RULE_KEYS.LEM, dependencies: [], justificationKey: 'justificationLEM', depth: 0 },
+        ],
+        currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.applyRule(orElimRule, state, [1])
+
+      expect(result).not.toBeNull()
+      // Should NOT contain brackets [ or ]
+      expect(result?.formula).not.toContain('[')
+      expect(result?.formula).not.toContain(']')
+      // Should be parseable
+      expect(() => tokenizeAndParse(result!.formula)).not.toThrow()
+    })
+
+    it('should handle nested disjunctions with parentheses', () => {
+      const state: ProofState = {
+        goal: 'r',
+        premises: [],
+        steps: [
+          { id: 1, lineNumber: '1', formula: 'p | ~p | ~(p | ~p)', ruleKey: RULE_KEYS.LEM, dependencies: [], justificationKey: 'justificationLEM', depth: 0 },
+        ],
+        currentDepth: 0,
+        currentSubproofId: '',
+        nextStepInSubproof: [2],
+        isComplete: false,
+      }
+
+      const orElimRule = nd.getRules().find((r) => r.id === 'or_elim')!
+      const result = nd.applyRule(orElimRule, state, [1])
+
+      expect(result).not.toBeNull()
+      // Should NOT contain brackets [ or ]
+      expect(result?.formula).not.toContain('[')
+      expect(result?.formula).not.toContain(']')
+      // Should be parseable
+      expect(() => tokenizeAndParse(result!.formula)).not.toThrow()
     })
   })
 

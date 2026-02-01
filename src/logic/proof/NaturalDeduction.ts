@@ -525,15 +525,12 @@ export class NaturalDeduction implements ProofSystem {
           const parsed = tokenizeAndParse(step.formula)
           if (parsed.type !== FormulaType.OR || !parsed.left || !parsed.right) return null
 
-          const leftFormula = this.formulaToString(parsed.left)
-          const rightFormula = this.formulaToString(parsed.right)
-
-          // Return special step that indicates branching should start
-          // The UI will handle creating the actual branches
+          // Store the original formula - the UI will detect OR_ELIM and handle branching
+          // We don't use brackets in the actual formula since they're not parseable
           return {
             id: newId,
             lineNumber: this.computeLineNumber(state, false),
-            formula: `[${leftFormula}] | [${rightFormula}]`,
+            formula: step.formula,
             ruleKey: RULE_KEYS.OR_ELIM,
             dependencies: selectedSteps,
             justificationKey: 'justificationOrElim',
@@ -646,7 +643,26 @@ export class NaturalDeduction implements ProofSystem {
     }
   }
 
-  private formulaToString(formula: Formula): string {
+  private formulaToString(formula: Formula, parentPrecedence: number = 0): string {
+    // Operator precedence (lower number = lower precedence, same as in parser)
+    const ATOM_PRECEDENCE = 6
+    const precedence: Record<string, number> = {
+      [FormulaType.IFF]: 1,
+      [FormulaType.IMPLIES]: 2,
+      [FormulaType.OR]: 3,
+      [FormulaType.AND]: 4,
+      [FormulaType.NOT]: 5,
+    }
+
+    const needsParens = (type: string): boolean => {
+      const currentPrec = precedence[type] || ATOM_PRECEDENCE
+      return currentPrec < parentPrecedence
+    }
+
+    const wrapIfNeeded = (str: string, type: string): string => {
+      return needsParens(type) ? `(${str})` : str
+    }
+
     switch (formula.type) {
       case FormulaType.VAR:
         return formula.value || ''
@@ -655,15 +671,27 @@ export class NaturalDeduction implements ProofSystem {
       case FormulaType.FALSE:
         return 'F'
       case FormulaType.NOT:
-        return `~${this.formulaToString(formula.left!)}`
-      case FormulaType.AND:
-        return `${this.formulaToString(formula.left!)} ^ ${this.formulaToString(formula.right!)}`
-      case FormulaType.OR:
-        return `${this.formulaToString(formula.left!)} | ${this.formulaToString(formula.right!)}`
-      case FormulaType.IMPLIES:
-        return `${this.formulaToString(formula.left!)} -> ${this.formulaToString(formula.right!)}`
-      case FormulaType.IFF:
-        return `${this.formulaToString(formula.left!)} <-> ${this.formulaToString(formula.right!)}`
+        return `~${this.formulaToString(formula.left!, precedence[FormulaType.NOT])}`
+      case FormulaType.AND: {
+        const left = this.formulaToString(formula.left!, precedence[FormulaType.AND])
+        const right = this.formulaToString(formula.right!, precedence[FormulaType.AND])
+        return wrapIfNeeded(`${left} ^ ${right}`, FormulaType.AND)
+      }
+      case FormulaType.OR: {
+        const left = this.formulaToString(formula.left!, precedence[FormulaType.OR])
+        const right = this.formulaToString(formula.right!, precedence[FormulaType.OR])
+        return wrapIfNeeded(`${left} | ${right}`, FormulaType.OR)
+      }
+      case FormulaType.IMPLIES: {
+        const left = this.formulaToString(formula.left!, precedence[FormulaType.IMPLIES])
+        const right = this.formulaToString(formula.right!, precedence[FormulaType.IMPLIES])
+        return wrapIfNeeded(`${left} -> ${right}`, FormulaType.IMPLIES)
+      }
+      case FormulaType.IFF: {
+        const left = this.formulaToString(formula.left!, precedence[FormulaType.IFF])
+        const right = this.formulaToString(formula.right!, precedence[FormulaType.IFF])
+        return wrapIfNeeded(`${left} <-> ${right}`, FormulaType.IFF)
+      }
       default:
         return ''
     }
