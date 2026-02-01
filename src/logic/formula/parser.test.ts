@@ -43,7 +43,7 @@ describe('formulaParser', () => {
 
     it('should parse negation with parentheses', () => {
       const result = parseFormula('~(p ^ q)')
-      expect(result.latex).toBe('\\neg p \\land q')
+      expect(result.latex).toBe('\\neg (p \\land q)')
       expect(result.error).toBeUndefined()
     })
   })
@@ -109,7 +109,7 @@ describe('formulaParser', () => {
 
     it('should override precedence with parentheses', () => {
       const result = parseFormula('(p | q) ^ r')
-      expect(result.latex).toBe('p \\lor q \\land r')
+      expect(result.latex).toBe('(p \\lor q) \\land r')
     })
 
     it('should parse nested parentheses', () => {
@@ -148,17 +148,17 @@ describe('formulaParser', () => {
 
     it('should parse DeMorgan law', () => {
       const result = parseFormula('~(p ^ q) <-> (~p | ~q)')
-      expect(result.latex).toBe('\\neg p \\land q \\leftrightarrow \\neg p \\lor \\neg q')
+      expect(result.latex).toBe('\\neg (p \\land q) \\leftrightarrow \\neg p \\lor \\neg q')
     })
 
     it('should parse complex logical formula', () => {
       const result = parseFormula('(p -> q) ^ (q -> r) -> (p -> r)')
-      expect(result.latex).toBe('p \\to q \\land q \\to r \\to p \\to r')
+      expect(result.latex).toBe('(p \\to q) \\land (q \\to r) \\to p \\to r')
     })
 
     it('should parse with mixed operators and parentheses', () => {
       const result = parseFormula('((p | q) ^ ~r) -> (s <-> t)')
-      expect(result.latex).toBe('p \\lor q \\land \\neg r \\to s \\leftrightarrow t')
+      expect(result.latex).toBe('(p \\lor q) \\land \\neg r \\to (s \\leftrightarrow t)')
     })
   })
 

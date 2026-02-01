@@ -184,6 +184,13 @@ export class NaturalDeduction implements ProofSystem {
       category: 'elimination',
       requiredSteps: 1,
     },
+    {
+      id: 'lem',
+      nameKey: 'ruleLEM',
+      descriptionKey: 'ruleLEMDesc',
+      category: 'basic',
+      requiredSteps: 0,
+    },
   ]
 
   getRules(): Rule[] {
@@ -199,6 +206,11 @@ export class NaturalDeduction implements ProofSystem {
 
     // Assume is always applicable
     if (rule.id === 'assume') {
+      return { ...rule, applicable: true }
+    }
+
+    // Law of Excluded Middle is always applicable
+    if (rule.id === 'lem') {
       return { ...rule, applicable: true }
     }
 
@@ -530,6 +542,30 @@ export class NaturalDeduction implements ProofSystem {
           }
         }
 
+        case 'lem': {
+          // Law of Excluded Middle: introduce P ∨ ¬P for any formula P
+          if (!userInput || userInput.trim() === '') return null
+          
+          const trimmed = userInput.trim()
+          
+          // Determine if we need to wrap the formula in parentheses
+          // We need parentheses if the formula contains binary operators
+          const needsParens = /[|^&]|->|<->/.test(trimmed) && !this.isFullyParenthesized(trimmed)
+          
+          const wrappedFormula = needsParens ? `(${trimmed})` : trimmed
+          const lemFormula = `${wrappedFormula} | ~${wrappedFormula}`
+          
+          return {
+            id: newId,
+            lineNumber: this.computeLineNumber(state, false),
+            formula: lemFormula,
+            ruleKey: RULE_KEYS.LEM,
+            dependencies: [],
+            justificationKey: 'justificationLEM',
+            depth: state.currentDepth,
+          }
+        }
+
         default:
           return null
       }
@@ -537,6 +573,28 @@ export class NaturalDeduction implements ProofSystem {
       console.error('Error applying rule:', error)
       return null
     }
+  }
+
+  /**
+   * Check if a formula is already fully wrapped in matching outer parentheses
+   */
+  private isFullyParenthesized(formula: string): boolean {
+    const trimmed = formula.trim()
+    if (!trimmed.startsWith('(') || !trimmed.endsWith(')')) {
+      return false
+    }
+    
+    // Check if the outer parentheses wrap the entire formula
+    let depth = 0
+    for (let i = 0; i < trimmed.length; i++) {
+      if (trimmed[i] === '(') depth++
+      if (trimmed[i] === ')') depth--
+      // If depth reaches 0 before the end, outer parens don't wrap everything
+      if (depth === 0 && i < trimmed.length - 1) {
+        return false
+      }
+    }
+    return true
   }
 
   /**

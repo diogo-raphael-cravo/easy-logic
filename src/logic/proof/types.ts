@@ -17,6 +17,7 @@ export const RULE_KEYS = {
   DOUBLE_NEG: 'ruleDoubleNeg',
   IMPL_INTRO: 'ruleImplIntro',
   OR_ELIM: 'ruleOrElim',
+  LEM: 'ruleLEM',
   PREMISE: 'rulePremise',
 } as const
 

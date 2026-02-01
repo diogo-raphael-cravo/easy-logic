@@ -128,6 +128,8 @@
   "ruleImplIntroDesc": "Close assumption: if you assumed P and derived Q, conclude P→Q",
   "ruleOrElim": "∨ Elimination (Proof by Cases)",
   "ruleOrElimDesc": "From P∨Q, start two branches: assume P in one, assume Q in the other",
+  "ruleLEM": "Law of Excluded Middle",
+  "ruleLEMDesc": "Introduce P∨¬P for any proposition P (classical axiom)",
   "kbEmpty": "Empty",
   "kbEmptyDesc": "No premises - prove using only logic",
   "kbModusPonens": "Modus Ponens",
@@ -181,5 +183,6 @@
   "justificationDoubleNeg": "DN ({{step}})",
   "justificationImplIntro": "→I ({{start}}-{{end}})",
   "justificationOrElim": "∨E ({{step}})",
+  "justificationLEM": "LEM",
   "justificationPremise": "Premise"
 }

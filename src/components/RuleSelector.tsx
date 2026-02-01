@@ -39,7 +39,7 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
     if (!rule.applicable || disabled) return
 
     // Rules that need user input
-    const needsInput = ['assume', 'or_intro_left', 'or_intro_right'].includes(rule.id)
+    const needsInput = ['assume', 'or_intro_left', 'or_intro_right', 'lem'].includes(rule.id)
 
     if (needsInput) {
       setSelectedRule(rule)

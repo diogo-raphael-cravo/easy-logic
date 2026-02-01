@@ -718,4 +718,283 @@ describe('NaturalDeduction', () => {
       expect(result).toBeNull()
     })
   })
+
+  describe('Law of Excluded Middle (LEM)', () => {
+    describe('rule availability', () => {
+      it('should have a LEM rule defined', () => {
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')
+        expect(lemRule).toBeDefined()
+        expect(lemRule?.nameKey).toBe('ruleLEM')
+        expect(lemRule?.descriptionKey).toBe('ruleLEMDesc')
+        expect(lemRule?.requiredSteps).toBe(0)
+      })
+
+      it('should always be applicable regardless of state', () => {
+        const emptyState: ProofState = {
+          goal: 'p | ~p',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const applicability = nd.checkApplicability(lemRule, emptyState)
+        expect(applicability.applicable).toBe(true)
+      })
+
+      it('should be applicable even with existing steps', () => {
+        const stateWithSteps: ProofState = {
+          goal: 'q',
+          premises: ['p -> q'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p -> q', ruleKey: RULE_KEYS.PREMISE, dependencies: [], justificationKey: 'justificationPremise', depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [2],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const applicability = nd.checkApplicability(lemRule, stateWithSteps)
+        expect(applicability.applicable).toBe(true)
+      })
+    })
+
+    describe('formula generation - simple variables', () => {
+      it('should generate "p | ~p" for input "p"', () => {
+        const state: ProofState = {
+          goal: 'p | ~p',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'p')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('p | ~p')
+        expect(result?.ruleKey).toBe(RULE_KEYS.LEM)
+      })
+
+      it('should generate "q | ~q" for input "q"', () => {
+        const state: ProofState = {
+          goal: 'q | ~q',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'q')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('q | ~q')
+      })
+
+      it('should generate "r | ~r" for input "r"', () => {
+        const state: ProofState = {
+          goal: 'r | ~r',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'r')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('r | ~r')
+      })
+    })
+
+    describe('formula generation - complex formulas', () => {
+      it('should generate "(p -> q) | ~(p -> q)" for input "p -> q"', () => {
+        const state: ProofState = {
+          goal: '(p -> q) | ~(p -> q)',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'p -> q')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('(p -> q) | ~(p -> q)')
+      })
+
+      it('should generate "(p ^ q) | ~(p ^ q)" for input "p ^ q"', () => {
+        const state: ProofState = {
+          goal: '(p ^ q) | ~(p ^ q)',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'p ^ q')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('(p ^ q) | ~(p ^ q)')
+      })
+
+      it('should generate "(p | q) | ~(p | q)" for input "p | q"', () => {
+        const state: ProofState = {
+          goal: '(p | q) | ~(p | q)',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'p | q')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('(p | q) | ~(p | q)')
+      })
+
+      it('should generate "(p | ~p) | ~(p | ~p)" for input "p | ~p"', () => {
+        const state: ProofState = {
+          goal: '(p | ~p) | ~(p | ~p)',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'p | ~p')
+
+        expect(result).not.toBeNull()
+        // Should be "(p | ~p) | ~(p | ~p)", NOT "p | ~p | ~p | ~p"
+        expect(result?.formula).toBe('(p | ~p) | ~(p | ~p)')
+        // Verify parentheses are present
+        expect(result?.formula).toContain('(p | ~p)')
+      })
+    })
+
+    describe('formula generation - already parenthesized', () => {
+      it('should not add extra parentheses to "(p -> q)" input', () => {
+        const state: ProofState = {
+          goal: '(p -> q) | ~(p -> q)',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], '(p -> q)')
+
+        expect(result).not.toBeNull()
+        // Should be (p -> q) | ~(p -> q), not ((p -> q)) | ~((p -> q))
+        expect(result?.formula).toBe('(p -> q) | ~(p -> q)')
+      })
+    })
+
+    describe('step metadata', () => {
+      it('should have correct justification and dependencies', () => {
+        const state: ProofState = {
+          goal: 'p | ~p',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], 'p')
+
+        expect(result?.justificationKey).toBe('justificationLEM')
+        expect(result?.dependencies).toEqual([])
+        expect(result?.depth).toBe(0)
+      })
+
+      it('should not require any selected steps', () => {
+        const state: ProofState = {
+          goal: 'p | ~p',
+          premises: ['q'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'q', ruleKey: RULE_KEYS.PREMISE, dependencies: [], justificationKey: 'justificationPremise', depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [2],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        // Pass empty array for selectedSteps
+        const result = nd.applyRule(lemRule, state, [], 'p')
+
+        expect(result).not.toBeNull()
+        expect(result?.dependencies).toEqual([])
+      })
+    })
+
+    describe('error handling', () => {
+      it('should return null when no user input is provided', () => {
+        const state: ProofState = {
+          goal: 'p | ~p',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [])
+
+        expect(result).toBeNull()
+      })
+
+      it('should return null when user input is empty string', () => {
+        const state: ProofState = {
+          goal: 'p | ~p',
+          premises: [],
+          steps: [],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [1],
+          isComplete: false,
+        }
+
+        const lemRule = nd.getRules().find((r) => r.id === 'lem')!
+        const result = nd.applyRule(lemRule, state, [], '')
+
+        expect(result).toBeNull()
+      })
+    })
+  })
 })

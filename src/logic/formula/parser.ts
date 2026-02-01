@@ -16,7 +16,26 @@
 
 import { tokenizeAndParse, Formula, FormulaType } from './common'
 
-export function formulaToLatex(formula: Formula): string {
+export function formulaToLatex(formula: Formula, parentPrecedence: number = 0): string {
+  // Operator precedence (lower number = lower precedence)
+  const ATOM_PRECEDENCE = 6
+  const precedence: Record<string, number> = {
+    [FormulaType.IFF]: 1,
+    [FormulaType.IMPLIES]: 2,
+    [FormulaType.OR]: 3,
+    [FormulaType.AND]: 4,
+    [FormulaType.NOT]: 5,
+  }
+
+  const needsParens = (type: string): boolean => {
+    const currentPrec = precedence[type] || ATOM_PRECEDENCE
+    return currentPrec < parentPrecedence
+  }
+
+  const wrapIfNeeded = (latex: string, type: string): string => {
+    return needsParens(type) ? `(${latex})` : latex
+  }
+
   switch (formula.type) {
     case FormulaType.VAR:
       return formula.value!
@@ -28,19 +47,35 @@ export function formulaToLatex(formula: Formula): string {
       return '\\bot'
 
     case FormulaType.NOT:
-      return `\\neg ${formulaToLatex(formula.left!)}`
+      return `\\neg ${formulaToLatex(formula.left!, precedence[FormulaType.NOT])}`
 
-    case FormulaType.AND:
-      return `${formulaToLatex(formula.left!)} \\land ${formulaToLatex(formula.right!)}`
+    case FormulaType.AND: {
+      const left = formulaToLatex(formula.left!, precedence[FormulaType.AND])
+      const right = formulaToLatex(formula.right!, precedence[FormulaType.AND])
+      const result = `${left} \\land ${right}`
+      return wrapIfNeeded(result, FormulaType.AND)
+    }
 
-    case FormulaType.OR:
-      return `${formulaToLatex(formula.left!)} \\lor ${formulaToLatex(formula.right!)}`
+    case FormulaType.OR: {
+      const left = formulaToLatex(formula.left!, precedence[FormulaType.OR])
+      const right = formulaToLatex(formula.right!, precedence[FormulaType.OR])
+      const result = `${left} \\lor ${right}`
+      return wrapIfNeeded(result, FormulaType.OR)
+    }
 
-    case FormulaType.IMPLIES:
-      return `${formulaToLatex(formula.left!)} \\to ${formulaToLatex(formula.right!)}`
+    case FormulaType.IMPLIES: {
+      const left = formulaToLatex(formula.left!, precedence[FormulaType.IMPLIES])
+      const right = formulaToLatex(formula.right!, precedence[FormulaType.IMPLIES])
+      const result = `${left} \\to ${right}`
+      return wrapIfNeeded(result, FormulaType.IMPLIES)
+    }
 
-    case FormulaType.IFF:
-      return `${formulaToLatex(formula.left!)} \\leftrightarrow ${formulaToLatex(formula.right!)}`
+    case FormulaType.IFF: {
+      const left = formulaToLatex(formula.left!, precedence[FormulaType.IFF])
+      const right = formulaToLatex(formula.right!, precedence[FormulaType.IFF])
+      const result = `${left} \\leftrightarrow ${right}`
+      return wrapIfNeeded(result, FormulaType.IFF)
+    }
 
     default:
       throw new Error(`Unknown formula type`)
