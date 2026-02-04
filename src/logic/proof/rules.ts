@@ -84,6 +84,13 @@ export const naturalDeductionRules: Rule[] = [
     requiredSteps: 1,
   },
   {
+    id: 'disj_syl',
+    nameKey: 'ruleDisjSyl',
+    descriptionKey: 'ruleDisjSylDesc',
+    category: 'derived',
+    requiredSteps: 2,
+  },
+  {
     id: 'lem',
     nameKey: 'ruleLEM',
     descriptionKey: 'ruleLEMDesc',

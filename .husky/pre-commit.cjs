@@ -290,30 +290,32 @@ try {
 }
 console.log('');
 
-// Step 5: Build check
-console.log('Step 5: Building project...');
+// Step 5: TypeScript type check
+console.log('Step 5: TypeScript type checking...');
+try {
+  execSync('npx tsc --noEmit', { 
+    stdio: 'pipe',
+    encoding: 'utf-8'
+  });
+  printStatus(true, 'TypeScript type check passed');
+} catch (error) {
+  printStatus(false, 'TypeScript type errors found');
+  console.log(error.stdout?.toString() || '');
+  log(colors.red, '\n❌ Commit aborted: Fix all TypeScript errors before committing');
+  process.exit(1);
+}
+console.log('');
+
+// Step 6: Build check
+console.log('Step 6: Building project...');
 try {
   const buildOutput = execSync('npm run build', { 
     stdio: 'pipe',
     encoding: 'utf-8'
   });
   
-  // Check for warnings in build output
-  if (buildOutput.toLowerCase().includes('warning') || buildOutput.toLowerCase().includes('error')) {
-    printStatus(false, 'Build completed with warnings or errors');
-    const lines = buildOutput.split('\n');
-    const warningLines = lines.filter(line => 
-      line.toLowerCase().includes('warning') || line.toLowerCase().includes('error')
-    );
-    console.log(warningLines.slice(0, 10).join('\n'));
-    log(colors.yellow, '\n⚠ Note: Build completed but contains warnings/errors');
-    log(colors.yellow, 'These should be addressed before committing');
-    // Uncomment next 2 lines to enforce strict build warnings check
-    // log(colors.red, '❌ Commit aborted: Resolve all build warnings and errors first');
-    // process.exit(1);
-  } else {
-    printStatus(true, 'Build successful without warnings');
-  }
+  // Build should succeed after type check passes
+  printStatus(true, 'Build successful');
 } catch (error) {
   printStatus(false, 'Build failed');
   console.log(error.stdout?.toString().slice(-1000) || '');

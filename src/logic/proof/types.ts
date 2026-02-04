@@ -18,6 +18,7 @@ export const RULE_KEYS = {
   IMPL_INTRO: 'ruleImplIntro',
   OR_ELIM: 'ruleOrElim',
   LEM: 'ruleLEM',
+  DISJ_SYL: 'ruleDisjSyl',
   PREMISE: 'rulePremise',
 } as const
 
@@ -60,7 +61,7 @@ export interface Rule {
   id: string
   nameKey: string // Translation key for name
   descriptionKey: string // Translation key for description
-  category: 'basic' | 'introduction' | 'elimination' | 'assumption'
+  category: 'basic' | 'introduction' | 'elimination' | 'assumption' | 'derived'
   requiredSteps: number // How many previous steps needed
   pattern?: string // Pattern to match
 }

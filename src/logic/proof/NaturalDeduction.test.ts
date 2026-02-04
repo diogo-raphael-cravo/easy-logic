@@ -1046,4 +1046,202 @@ describe('NaturalDeduction', () => {
       })
     })
   })
+
+  // Level 1: Simple Direct Rules - Complete Proofs
+  describe('Level 1: Simple Direct Rules', () => {
+    describe('Test 1: Basic Modus Ponens - P, P→Q ⊢ Q', () => {
+      it('should complete proof with single MP application', () => {
+        const state: ProofState = {
+          goal: 'q',
+          premises: ['p', 'p -> q'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+            { id: 2, lineNumber: '2', formula: 'p -> q', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [3],
+          isComplete: false,
+        }
+
+        const mpRule = nd.getRules().find((r) => r.id === 'mp')!
+        const result = nd.applyRule(mpRule, state, [1, 2])
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('q')
+        expect(state.goal).toBe('q')
+      })
+    })
+
+    describe('Test 2: Conjunction Introduction - P, Q ⊢ P^Q', () => {
+      it('should complete proof with ∧I', () => {
+        const state: ProofState = {
+          goal: 'p ^ q',
+          premises: ['p', 'q'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+            { id: 2, lineNumber: '2', formula: 'q', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [3],
+          isComplete: false,
+        }
+
+        const andIntroRule = nd.getRules().find((r) => r.id === 'and_intro')!
+        const result = nd.applyRule(andIntroRule, state, [1, 2])
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('(p) ^ (q)')
+      })
+    })
+
+    describe('Test 3: Conjunction Elimination Left - P^Q ⊢ P', () => {
+      it('should complete proof with ∧E left', () => {
+        const state: ProofState = {
+          goal: 'p',
+          premises: ['p ^ q'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p ^ q', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [2],
+          isComplete: false,
+        }
+
+        const andElimLeftRule = nd.getRules().find((r) => r.id === 'and_elim_left')!
+        const result = nd.applyRule(andElimLeftRule, state, [1])
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('p')
+      })
+    })
+
+    describe('Test 4: Conjunction Elimination Right - P^Q ⊢ Q', () => {
+      it('should complete proof with ∧E right', () => {
+        const state: ProofState = {
+          goal: 'q',
+          premises: ['p ^ q'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p ^ q', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [2],
+          isComplete: false,
+        }
+
+        const andElimRightRule = nd.getRules().find((r) => r.id === 'and_elim_right')!
+        const result = nd.applyRule(andElimRightRule, state, [1])
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('q')
+      })
+    })
+
+    describe('Test 5: Disjunction Introduction Left - P ⊢ P|Q', () => {
+      it('should complete proof with ∨I left', () => {
+        const state: ProofState = {
+          goal: 'p | q',
+          premises: ['p'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [2],
+          isComplete: false,
+        }
+
+        const orIntroLeftRule = nd.getRules().find((r) => r.id === 'or_intro_left')!
+        const result = nd.applyRule(orIntroLeftRule, state, [1], 'q')
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('(p) | (q)')
+      })
+    })
+
+    describe('Test 6: Double Negation - ~~P ⊢ P', () => {
+      it('should complete proof with ¬¬E', () => {
+        const state: ProofState = {
+          goal: 'p',
+          premises: ['~~p'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: '~~p', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [2],
+          isComplete: false,
+        }
+
+        const doubleNegRule = nd.getRules().find((r) => r.id === 'double_neg')!
+        const result = nd.applyRule(doubleNegRule, state, [1])
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('p')
+      })
+    })
+  })
+
+  // Level 2: Multiple Steps
+  describe('Level 2: Multiple rule applications', () => {
+    describe('Test 7: Chained Modus Ponens - P, P→Q, Q→R ⊢ R', () => {
+      it('should complete proof with two MP applications', () => {
+        const state: ProofState = {
+          goal: 'r',
+          premises: ['p', 'p -> q', 'q -> r'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+            { id: 2, lineNumber: '2', formula: 'p -> q', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+            { id: 3, lineNumber: '3', formula: 'q -> r', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [4],
+          isComplete: false,
+        }
+
+        const mpRule = nd.getRules().find((r) => r.id === 'mp')!
+        
+        // First MP: p, p→q ⊢ q
+        const step1 = nd.applyRule(mpRule, state, [1, 2])
+        expect(step1).not.toBeNull()
+        expect(step1?.formula).toBe('q')
+
+        // Add step to state
+        state.steps.push({ ...step1!, id: 4, lineNumber: '4', depth: 0 })
+        state.nextStepInSubproof = [5]
+
+        // Second MP: q, q→r ⊢ r
+        const step2 = nd.applyRule(mpRule, state, [4, 3])
+        expect(step2).not.toBeNull()
+        expect(step2?.formula).toBe('r')
+      })
+    })
+
+    describe('Test 8: Conjunction chain - P^Q, (P^Q)→R ⊢ R', () => {
+      it('should complete proof with ∧E and MP', () => {
+        const state: ProofState = {
+          goal: 'r',
+          premises: ['p ^ q', '(p ^ q) -> r'],
+          steps: [
+            { id: 1, lineNumber: '1', formula: 'p ^ q', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+            { id: 2, lineNumber: '2', formula: '(p ^ q) -> r', ruleKey: RULE_KEYS.PREMISE, justificationKey: 'justificationPremise', dependencies: [], depth: 0 },
+          ],
+          currentDepth: 0,
+          currentSubproofId: '',
+          nextStepInSubproof: [3],
+          isComplete: false,
+        }
+
+        const mpRule = nd.getRules().find((r) => r.id === 'mp')!
+        const result = nd.applyRule(mpRule, state, [1, 2])
+
+        expect(result).not.toBeNull()
+        expect(result?.formula).toBe('r')
+      })
+    })
+  })
 })

@@ -50,10 +50,23 @@ import { useCelebration } from '../hooks/useCelebration'
 import ProofStep from '../components/ProofStep'
 import RuleSelector from '../components/RuleSelector'
 
+const NAVIGATION_FALLBACK_DELAY_MS = 100
+
 export default function ProofAssistantPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
+
+  const handleBackClick = () => {
+    // Force navigation to home by using window.location if navigate doesn't work
+    navigate('/', { replace: true })
+    // Fallback: if still on same page after delay, force reload
+    setTimeout(() => {
+      if (window.location.pathname.includes('/proof-assistant')) {
+        window.location.href = import.meta.env.DEV ? '/' : '/easy-logic/'
+      }
+    }, NAVIGATION_FALLBACK_DELAY_MS)
+  }
 
   // Check if a formula was passed from navigation state
   const initialFormula = (location.state as { formula?: string })?.formula || ''
@@ -166,7 +179,7 @@ export default function ProofAssistantPage() {
     <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 }, gap: { xs: 1, sm: 2 } }}>
-        <IconButton onClick={() => navigate('/')} aria-label={t('ariaBack')}>
+        <IconButton onClick={handleBackClick} aria-label={t('ariaBack')}>
           <ArrowBack />
         </IconButton>
         <Typography variant="h4" component="h1" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
@@ -183,10 +196,15 @@ export default function ProofAssistantPage() {
         disableEscapeKeyDown
       >
         <DialogTitle>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="h6">{t('chooseGoal')}</Typography>
-            <IconButton size="small">
-              <HelpOutline fontSize="small" />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="h6">{t('chooseGoal')}</Typography>
+              <IconButton size="small">
+                <HelpOutline fontSize="small" />
+              </IconButton>
+            </Box>
+            <IconButton onClick={handleBackClick} aria-label={t('ariaBack')} size="small">
+              <ArrowBack />
             </IconButton>
           </Box>
         </DialogTitle>

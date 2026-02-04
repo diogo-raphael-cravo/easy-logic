@@ -130,6 +130,8 @@
   "ruleOrElimDesc": "From P∨Q, start two branches: assume P in one, assume Q in the other",
   "ruleLEM": "Law of Excluded Middle",
   "ruleLEMDesc": "Introduce P∨¬P for any proposition P (classical axiom)",
+  "ruleDisjSyl": "Disjunctive Syllogism",
+  "ruleDisjSylDesc": "From P∨Q and ¬P, derive Q (or from P∨Q and ¬Q, derive P)",
   "kbEmpty": "Empty",
   "kbEmptyDesc": "No premises - prove using only logic",
   "kbModusPonens": "Modus Ponens",
@@ -184,5 +186,6 @@
   "justificationImplIntro": "→I ({{start}}-{{end}})",
   "justificationOrElim": "∨E ({{step}})",
   "justificationLEM": "LEM",
+  "justificationDisjSyl": "DS {{step1}}, {{step2}}",
   "justificationPremise": "Premise"
 }

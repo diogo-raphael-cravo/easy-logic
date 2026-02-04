@@ -3,14 +3,14 @@
  * Handles ONLY proof logic - no UI concerns
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ProofState, ApplicableRule, ProofStep as ProofStepType, RULE_KEYS } from '../logic/proof'
 import { NaturalDeduction } from '../logic/proof'
 
 export function useProofState(initialFormula: string, onProofComplete?: () => void) {
   const { t } = useTranslation()
-  const proofSystem = new NaturalDeduction()
+  const proofSystem = useMemo(() => new NaturalDeduction(), [])
 
   const [goalDialogOpen, setGoalDialogOpen] = useState(!initialFormula)
   const [customGoal, setCustomGoal] = useState('')

@@ -386,6 +386,29 @@ export class NaturalDeduction implements ProofSystem {
           }
         }
 
+        case 'disj_syl': {
+          // Disjunctive Syllogism: From P∨Q and ¬P, derive Q (or from P∨Q and ¬Q, derive P)
+          const steps = this.getTwoSteps(state, selectedSteps)
+          if (!steps) return null
+          const [step1, step2] = steps
+
+          // Try both orders
+          const result = this.tryDisjunctiveSyllogism(step1, step2) || 
+                        this.tryDisjunctiveSyllogism(step2, step1)
+          if (!result) return null
+
+          return {
+            id: newId,
+            lineNumber: this.computeLineNumber(state, false),
+            formula: result,
+            ruleKey: RULE_KEYS.DISJ_SYL,
+            dependencies: selectedSteps,
+            justificationKey: 'justificationDisjSyl',
+            justificationParams: { step1: step1.lineNumber, step2: step2.lineNumber },
+            depth: state.currentDepth,
+          }
+        }
+
         default:
           return null
       }
@@ -421,6 +444,41 @@ export class NaturalDeduction implements ProofSystem {
       if (normalizeFormula(negatedFormula) === normalizeFormula(impl.consequent)) {
         return `~${impl.antecedent}`
       }
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  private tryDisjunctiveSyllogism(stepDisj: ProofStep, stepNeg: ProofStep): string | null {
+    // Parse the disjunction: P ∨ Q
+    try {
+      const parsedDisj = tokenizeAndParse(stepDisj.formula)
+      if (parsedDisj.type !== FormulaType.OR || !parsedDisj.left || !parsedDisj.right) {
+        return null
+      }
+
+      const leftDisjunct = formulaToString(parsedDisj.left)
+      const rightDisjunct = formulaToString(parsedDisj.right)
+
+      // Parse the negation: ¬P or ¬Q
+      const parsedNeg = tokenizeAndParse(stepNeg.formula)
+      if (parsedNeg.type !== FormulaType.NOT || !parsedNeg.left) {
+        return null
+      }
+
+      const negatedFormula = formulaToString(parsedNeg.left)
+
+      // Check if negatedFormula matches left disjunct → return right
+      if (normalizeFormula(negatedFormula) === normalizeFormula(leftDisjunct)) {
+        return rightDisjunct
+      }
+
+      // Check if negatedFormula matches right disjunct → return left
+      if (normalizeFormula(negatedFormula) === normalizeFormula(rightDisjunct)) {
+        return leftDisjunct
+      }
+
       return null
     } catch {
       return null

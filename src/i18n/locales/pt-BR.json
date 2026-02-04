@@ -130,6 +130,8 @@
   "ruleOrElimDesc": "De P∨Q, inicie dois ramos: assuma P em um, assuma Q no outro",
   "ruleLEM": "Lei do Terceiro Excluído",
   "ruleLEMDesc": "Introduza P∨¬P para qualquer proposição P (axioma clássico)",
+  "ruleDisjSyl": "Silogismo Disjuntivo",
+  "ruleDisjSylDesc": "De P∨Q e ¬P, derive Q (ou de P∨Q e ¬Q, derive P)",
   "kbEmpty": "Vazio",
   "kbEmptyDesc": "Sem premissas - prove usando apenas lógica",
   "kbModusPonens": "Modus Ponens",
@@ -184,5 +186,6 @@
   "justificationImplIntro": "→I ({{start}}-{{end}})",
   "justificationOrElim": "∨E ({{step}})",
   "justificationLEM": "LTE",
+  "justificationDisjSyl": "SD {{step1}}, {{step2}}",
   "justificationPremise": "Premissa"
 }
