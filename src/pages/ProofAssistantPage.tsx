@@ -46,6 +46,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { RULE_KEYS } from '../logic/proof'
 import { useProofState } from '../hooks/useProofState'
+import { useCelebration } from '../hooks/useCelebration'
 import ProofStep from '../components/ProofStep'
 import RuleSelector from '../components/RuleSelector'
 
@@ -57,7 +58,17 @@ export default function ProofAssistantPage() {
   // Check if a formula was passed from navigation state
   const initialFormula = (location.state as { formula?: string })?.formula || ''
 
-  // Use the custom hook for proof state management
+  // Celebration logic (UI concern)
+  const {
+    showCelebration,
+    confetti,
+    fireworks,
+    floatingEmojis,
+    triggerCelebration,
+    closeCelebration,
+  } = useCelebration()
+
+  // Proof state logic (business concern)
   const {
     proofSystem,
     goalDialogOpen,
@@ -74,18 +85,13 @@ export default function ProofAssistantPage() {
     setSuccessMessage,
     showHint,
     setShowHint,
-    showCelebration,
-    confetti,
-    fireworks,
-    floatingEmojis,
     handleGoalSelect,
     handleCustomGoalSubmit,
     handleRuleSelect,
     handleToggleStepSelection,
     handleDeleteStep,
     handleReset,
-    handleCloseCelebration,
-  } = useProofState(initialFormula)
+  } = useProofState(initialFormula, triggerCelebration)
 
   const knowledgeBases = proofSystem.getKnowledgeBases()
 
@@ -356,7 +362,7 @@ export default function ProofAssistantPage() {
           {/* 🎆🎆🎆 THE BIG BANG CELEBRATION OVERLAY 🎆🎆🎆 */}
           <Backdrop
             open={showCelebration}
-            onClick={handleCloseCelebration}
+            onClick={closeCelebration}
             sx={{ 
               zIndex: 9999, 
               bgcolor: 'rgba(0,0,0,0.7)',

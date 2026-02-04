@@ -1,15 +1,14 @@
 /**
  * Custom hook for managing proof state and actions
+ * Handles ONLY proof logic - no UI concerns
  */
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ProofState, ApplicableRule, ProofStep as ProofStepType, RULE_KEYS } from '../logic/proof'
 import { NaturalDeduction } from '../logic/proof'
-import { confettiColors, shapes } from '../constants/animations'
-import { CELEBRATION, ANIMATION_MS } from '../constants/ui'
 
-export function useProofState(initialFormula: string) {
+export function useProofState(initialFormula: string, onProofComplete?: () => void) {
   const { t } = useTranslation()
   const proofSystem = new NaturalDeduction()
 
@@ -30,77 +29,6 @@ export function useProofState(initialFormula: string) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [showHint, setShowHint] = useState(true)
-  const [showCelebration, setShowCelebration] = useState(false)
-
-  // Generate EPIC confetti pieces
-  const generateConfetti = useCallback(() => {
-    return Array.from({ length: CELEBRATION.CONFETTI_COUNT }, (_, i) => ({
-      id: i,
-      left: Math.random() * CELEBRATION.SCALE_PERCENT,
-      delay: Math.random() * CELEBRATION.MAX_DELAY_S,
-      duration:
-        CELEBRATION.MIN_DURATION_S +
-        Math.random() * CELEBRATION.MAX_DURATION_EXTRA_S,
-      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-      size:
-        CELEBRATION.CONFETTI_SIZE_MIN +
-        Math.random() * CELEBRATION.CONFETTI_SIZE_RANGE,
-      shape: shapes[Math.floor(Math.random() * shapes.length)],
-      rotation: Math.random() * CELEBRATION.FULL_ROTATION_DEG,
-    }))
-  }, [])
-
-  // Generate fireworks
-  const generateFireworks = useCallback(() => {
-    return Array.from({ length: CELEBRATION.FIREWORK_COUNT }, (_, i) => ({
-      id: i,
-      left:
-        CELEBRATION.MIN_POSITION_PERCENT +
-        Math.random() * CELEBRATION.MAX_X_POSITION_PERCENT,
-      top:
-        CELEBRATION.MIN_POSITION_PERCENT +
-        Math.random() * CELEBRATION.MAX_Y_POSITION_PERCENT,
-      delay: Math.random() * CELEBRATION.FIREWORK_DELAY_S,
-      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-      size:
-        CELEBRATION.FIREWORK_SIZE_MIN +
-        Math.random() * CELEBRATION.FIREWORK_SIZE_RANGE,
-    }))
-  }, [])
-
-  // Generate floating emojis
-  const generateFloatingEmojis = useCallback(() => {
-    const emojis = [
-      '🎉',
-      '🎊',
-      '🌟',
-      '⭐',
-      '✨',
-      '💫',
-      '🎆',
-      '🎇',
-      '🏆',
-      '👏',
-      '🙌',
-      '💯',
-      '🔥',
-      '💪',
-    ]
-    return Array.from({ length: CELEBRATION.FLOATING_EMOJI_COUNT }, (_, i) => ({
-      id: i,
-      left: Math.random() * CELEBRATION.SCALE_PERCENT,
-      bottom: Math.random() * CELEBRATION.MAX_BOTTOM_PERCENT,
-      delay: Math.random() * CELEBRATION.MAX_DELAY_S,
-      emoji: emojis[Math.floor(Math.random() * emojis.length)],
-      size:
-        CELEBRATION.EMOJI_SIZE_MIN +
-        Math.random() * CELEBRATION.EMOJI_SIZE_RANGE,
-    }))
-  }, [])
-
-  const [confetti, setConfetti] = useState(generateConfetti())
-  const [fireworks, setFireworks] = useState(generateFireworks())
-  const [floatingEmojis, setFloatingEmojis] = useState(generateFloatingEmojis())
 
   // Update applicable rules whenever proof state changes
   useEffect(() => {
@@ -196,27 +124,10 @@ export function useProofState(initialFormula: string) {
           newState.isComplete = true
           setSuccessMessage(t('proofCompleteMessage'))
 
-          // 🎆 TRIGGER THE BIG BANG! 🎆
-          setShowCelebration(true)
-          setConfetti(generateConfetti())
-          setFireworks(generateFireworks())
-          setFloatingEmojis(generateFloatingEmojis())
-
-          // Phase 2: More fireworks after 1 second
-          setTimeout(() => {
-            setFireworks(generateFireworks())
-          }, ANIMATION_MS.FAST)
-
-          // Phase 3: Even more after 2 seconds
-          setTimeout(() => {
-            setConfetti(generateConfetti())
-          }, ANIMATION_MS.MEDIUM)
-
-          // Auto-hide celebration after 6 seconds
-          setTimeout(
-            () => setShowCelebration(false),
-            ANIMATION_MS.SLOW
-          )
+          // Notify parent that proof is complete (for celebration)
+          if (onProofComplete) {
+            onProofComplete()
+          }
         }
 
         setProofState(newState)
@@ -227,15 +138,7 @@ export function useProofState(initialFormula: string) {
         setErrorMessage(t('errorApplyingRule'))
       }
     },
-    [
-      proofSystem,
-      proofState,
-      selectedSteps,
-      t,
-      generateConfetti,
-      generateFireworks,
-      generateFloatingEmojis,
-    ]
+    [proofSystem, proofState, selectedSteps, t, onProofComplete]
   )
 
   const handleToggleStepSelection = useCallback((stepId: number) => {
@@ -312,11 +215,6 @@ export function useProofState(initialFormula: string) {
     setErrorMessage(null)
     setSuccessMessage(null)
     setShowHint(true)
-    setShowCelebration(false)
-  }, [])
-
-  const handleCloseCelebration = useCallback(() => {
-    setShowCelebration(false)
   }, [])
 
   return {
@@ -336,16 +234,11 @@ export function useProofState(initialFormula: string) {
     setSuccessMessage,
     showHint,
     setShowHint,
-    showCelebration,
-    confetti,
-    fireworks,
-    floatingEmojis,
     handleGoalSelect,
     handleCustomGoalSubmit,
     handleRuleSelect,
     handleToggleStepSelection,
     handleDeleteStep,
     handleReset,
-    handleCloseCelebration,
   }
 }

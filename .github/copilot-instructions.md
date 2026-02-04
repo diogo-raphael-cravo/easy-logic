@@ -5,6 +5,68 @@ A propositional logic formula renderer and proof assistant with i18n support (En
 
 ## Development Principles
 
+### #1 Rule: High Cohesion, Low Coupling - CRITICAL ⚠️
+
+**High Cohesion** = Each module does ONE thing and does it well
+- All code in a module should be related to the same concern
+- If you can't describe a module's purpose in one sentence, split it
+- Example: `useCelebration` handles ONLY celebration animations, not proof logic
+
+**Low Coupling** = Modules depend minimally on each other
+- Modules communicate through clean interfaces (props, callbacks, return values)
+- Changes in one module shouldn't require changes in many others
+- Use dependency injection (pass dependencies as parameters)
+
+**Examples:**
+
+❌ **BAD - Low Cohesion (multiple concerns in one module):**
+```typescript
+// useProofState.ts mixing business logic with UI concerns
+function useProofState() {
+  // Proof logic
+  const [proofState, setProofState] = useState(...)
+  
+  // UI animation logic (WRONG - different concern!)
+  const generateConfetti = () => { ... }
+  const generateFireworks = () => { ... }
+  
+  return { proofState, confetti, fireworks } // Mixed concerns!
+}
+```
+
+✅ **GOOD - High Cohesion (single concern per module):**
+```typescript
+// useProofState.ts - ONLY proof logic
+function useProofState(onComplete) {
+  const [proofState, setProofState] = useState(...)
+  // ... only proof-related state and actions
+  return { proofState, handleRuleSelect }
+}
+
+// useCelebration.ts - ONLY UI animations
+function useCelebration() {
+  const generateConfetti = () => { ... }
+  return { confetti, fireworks, triggerCelebration }
+}
+
+// Component combines them
+function ProofPage() {
+  const { triggerCelebration } = useCelebration()
+  const proof = useProofState(triggerCelebration) // Low coupling via callback
+}
+```
+
+**How to achieve this:**
+1. **Before writing code:** Ask "What is this module's single responsibility?"
+2. **While coding:** If adding code, ask "Does this belong to the same concern?"
+3. **When reviewing:** If a file mixes concerns (business logic + UI + data fetching), split it
+
+**Red flags indicating violation:**
+- File handles both business logic AND UI concerns
+- File has both data fetching AND state management AND UI rendering
+- Module imports seem unrelated to its main purpose
+- Can't describe module's purpose in one clear sentence
+
 ### Test-Driven Development (TDD) - CRITICAL ⚠️
 **ALL new features and bug fixes MUST follow strict TDD:**
 
@@ -37,12 +99,11 @@ describe('newFeature', () => {
 - Pre-commit hooks verify ≥80% coverage
 
 ### Code Quality Standards
-- **Single Responsibility Principle** - Classes/functions do ONE thing well
-- **Low Coupling** - Minimize dependencies between modules
-- **High Cohesion** - Related functionality stays together
+- **Single Responsibility Principle** - Classes/functions do ONE thing well (see High Cohesion above)
 - **No God Classes** - Keep files under 200 lines when possible
 - **No Magic Numbers** - Use named constants (ESLint enforces this)
 - **No Hardcoded Strings** - Use translation keys (pre-commit blocks commits)
+- **Separation of Concerns** - Never mix business logic with UI concerns in the same module
 
 ## Architecture
 
