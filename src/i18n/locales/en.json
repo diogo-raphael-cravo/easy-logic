@@ -5,6 +5,7 @@
   "formulaInput": "Enter Formula",
   "formulaPlaceholder": "Example: (p ^ q) -> r",
   "remove": "Remove formula",
+  "clear": "Clear",
   "truthTable": "Truth Table",
   "prove": "Prove",
   "syntaxHelp": "Operators: ^ (AND), | (OR), ~ (NOT), -> (IMPLIES), <-> (IFF), () (parentheses), T (true), F (false)",

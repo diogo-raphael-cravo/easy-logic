@@ -105,4 +105,77 @@ describe('FormulaInput', () => {
     expect(mockSubmit).toHaveBeenCalledWith('q')
     expect(input.value).toBe('')
   })
+
+  it('should not show clear button when input is empty', () => {
+    const mockSubmit = vi.fn()
+    render(<FormulaInput onSubmit={mockSubmit} />)
+    
+    const clearButton = screen.queryByRole('button', { name: /clear/i })
+    expect(clearButton).not.toBeInTheDocument()
+  })
+
+  it('should show clear button when input has text', async () => {
+    const mockSubmit = vi.fn()
+    render(<FormulaInput onSubmit={mockSubmit} />)
+    
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'p ^ q')
+    
+    const clearButton = screen.getByRole('button', { name: /clear/i })
+    expect(clearButton).toBeInTheDocument()
+  })
+
+  it('should clear input when clear button is clicked', async () => {
+    const mockSubmit = vi.fn()
+    render(<FormulaInput onSubmit={mockSubmit} />)
+    
+    const input = screen.getByRole('textbox') as HTMLInputElement
+    await userEvent.type(input, 'p ^ q')
+    expect(input.value).toBe('p ^ q')
+    
+    const clearButton = screen.getByRole('button', { name: /clear/i })
+    await userEvent.click(clearButton)
+    
+    expect(input.value).toBe('')
+  })
+
+  it('should hide clear button after clearing input', async () => {
+    const mockSubmit = vi.fn()
+    render(<FormulaInput onSubmit={mockSubmit} />)
+    
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'p ^ q')
+    
+    const clearButton = screen.getByRole('button', { name: /clear/i })
+    expect(clearButton).toBeInTheDocument()
+    
+    await userEvent.click(clearButton)
+    
+    const clearedButton = screen.queryByRole('button', { name: /clear/i })
+    expect(clearedButton).not.toBeInTheDocument()
+  })
+
+  it('should have proper ARIA label on clear button', async () => {
+    const mockSubmit = vi.fn()
+    render(<FormulaInput onSubmit={mockSubmit} />)
+    
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'test')
+    
+    const clearButton = screen.getByRole('button', { name: /clear/i })
+    expect(clearButton).toHaveAttribute('aria-label', expect.stringMatching(/clear/i))
+  })
+
+  it('should not call onSubmit when clear button is clicked', async () => {
+    const mockSubmit = vi.fn()
+    render(<FormulaInput onSubmit={mockSubmit} />)
+    
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'p ^ q')
+    
+    const clearButton = screen.getByRole('button', { name: /clear/i })
+    await userEvent.click(clearButton)
+    
+    expect(mockSubmit).not.toHaveBeenCalled()
+  })
 })
