@@ -5,8 +5,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ProofState, ApplicableRule, ProofStep as ProofStepType, RULE_KEYS } from '../logic/proof'
-import { NaturalDeduction } from '../logic/proof'
+import { ProofState, ApplicableRule, ProofStep as ProofStepType, RULE_KEYS, NaturalDeduction } from '../logic/proof'
 
 export function useProofState(initialFormula: string, onProofComplete?: () => void) {
   const { t } = useTranslation()
@@ -87,7 +86,7 @@ export function useProofState(initialFormula: string, onProofComplete?: () => vo
   const handleRuleSelect = useCallback(
     (ruleId: string, userInput?: string) => {
       const rule = proofSystem.getRules().find((r) => r.id === ruleId)
-      if (!rule) return
+      if (!rule) {return}
 
       try {
         const newStep = proofSystem.applyRule(
@@ -152,7 +151,7 @@ export function useProofState(initialFormula: string, onProofComplete?: () => vo
   const handleDeleteStep = useCallback(
     (stepId: number) => {
       const step = proofState.steps.find((s) => s.id === stepId)
-      if (!step) return
+      if (!step) {return}
 
       // Don't allow deleting premises
       if (step.ruleKey === RULE_KEYS.PREMISE) {

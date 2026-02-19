@@ -79,8 +79,8 @@ export function isFullyParenthesized(formula: string): boolean {
   // Check if the outer parentheses wrap the entire formula
   let depth = 0
   for (let i = 0; i < trimmed.length; i++) {
-    if (trimmed[i] === '(') depth++
-    if (trimmed[i] === ')') depth--
+    if (trimmed[i] === '(') {depth++}
+    if (trimmed[i] === ')') {depth--}
     // If depth reaches 0 before the end, outer parens don't wrap everything
     if (depth === 0 && i < trimmed.length - 1) {
       return false
@@ -96,7 +96,7 @@ export function isFullyParenthesized(formula: string): boolean {
 export function parseImplication(formula: string): { antecedent: string; consequent: string } | null {
   try {
     const parsed = tokenizeAndParse(formula)
-    if (parsed.type !== FormulaType.IMPLIES) return null
+    if (parsed.type !== FormulaType.IMPLIES) {return null}
     return {
       antecedent: formulaToString(parsed.left!),
       consequent: formulaToString(parsed.right!),

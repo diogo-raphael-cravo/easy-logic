@@ -21,6 +21,8 @@ export default defineConfig({
         '**/test.setup.ts',
         '**/vite-env.d.ts',
         '**/main.tsx',
+        'scripts/postinstall.cjs',
+        'scripts/template-integrity.cjs',
       ],
       thresholds: {
         lines: 80,

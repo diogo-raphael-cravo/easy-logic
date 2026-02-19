@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { formulaToString, isFullyParenthesized, parseImplication, normalizeFormula } from './formulaHelpers'
-import { FormulaType } from '../formula/types'
-import type { Formula } from '../formula/types'
+import { FormulaType, type Formula } from '../formula/types'
 
 describe('formulaHelpers', () => {
   describe('formulaToString', () => {

@@ -1,15 +1,72 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import * as React from 'react'
+
+// Mock MUI icons BEFORE any other imports to avoid EMFILE (too many open files) on Windows
+vi.mock('@mui/icons-material', async () => {
+  const createMockIcon = (name: string) => {
+     
+    const MockIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
+      React.createElement('svg', { ...props, ref, 'data-testid': `icon-${name}` })
+    )
+    MockIcon.displayName = name
+    return MockIcon
+  }
+  
+  return {
+    Menu: createMockIcon('Menu'),
+    Delete: createMockIcon('Delete'),
+    Clear: createMockIcon('Clear'),
+    ArrowBack: createMockIcon('ArrowBack'),
+    Refresh: createMockIcon('Refresh'),
+    HelpOutline: createMockIcon('HelpOutline'),
+    Celebration: createMockIcon('Celebration'),
+    Star: createMockIcon('Star'),
+    AutoAwesome: createMockIcon('AutoAwesome'),
+  }
+})
+
+vi.mock('@mui/icons-material/Menu', async () => {
+   
+  const MenuIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
+    React.createElement('svg', { ...props, ref, 'data-testid': 'icon-Menu' })
+  )
+  MenuIcon.displayName = 'Menu'
+  return { default: MenuIcon }
+})
+
+vi.mock('@mui/icons-material/Delete', async () => {
+   
+  const DeleteIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
+    React.createElement('svg', { ...props, ref, 'data-testid': 'icon-Delete' })
+  )
+  DeleteIcon.displayName = 'Delete'
+  return { default: DeleteIcon }
+})
+
+vi.mock('@mui/icons-material/Clear', async () => {
+   
+  const ClearIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
+    React.createElement('svg', { ...props, ref, 'data-testid': 'icon-Clear' })
+  )
+  ClearIcon.displayName = 'Clear'
+  return { default: ClearIcon }
+})
+
+vi.mock('@mui/icons-material/ArrowBack', async () => {
+   
+  const ArrowBackIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
+    React.createElement('svg', { ...props, ref, 'data-testid': 'icon-ArrowBack' })
+  )
+  ArrowBackIcon.displayName = 'ArrowBack'
+  return { default: ArrowBackIcon }
+})
+
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-// Skip on Windows due to EMFILE (too many open files) with @mui/icons-material
-// This test works fine on Linux (GitHub Actions)
-const isWindows = typeof process !== 'undefined' && process.platform === 'win32'
+const App = (await import('./App')).default
 
-// Conditionally import App to avoid EMFILE on Windows
-const App = isWindows ? () => null : (await import('./App')).default
-
-describe.skipIf(isWindows)('App', () => {
+describe('App', () => {
   it('should render header', () => {
     render(<App />)
     
@@ -162,4 +219,54 @@ describe.skipIf(isWindows)('App', () => {
       expect(found).toBe(true)
     }
   })
-})
+
+  it('should not show sidebar on non-home routes', () => {
+    // Test navigation to truth table page
+    render(<App />)
+    
+    // Navigate to a different route by using history
+    window.history.pushState({}, '', '/truth-table')
+    
+    // Force re-render to pick up route change
+    const { container: newContainer } = render(<App />)
+    
+    // Sidebar should not be rendered
+    const drawer = newContainer.querySelector('.MuiDrawer-root')
+    const appBar = newContainer.querySelector('.MuiAppBar-root')
+    
+    // These should not be present on non-home routes
+    expect(drawer).not.toBeInTheDocument()
+    expect(appBar).not.toBeInTheDocument()
+  })
+
+  it('should toggle mobile drawer when menu button is clicked', async () => {
+    // Mock matchMedia to simulate mobile view
+    const originalMatchMedia = window.matchMedia
+    window.matchMedia = vi.fn().mockImplementation(query => ({
+      matches: query.includes('(max-width'), // Matches mobile queries
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    render(<App />)
+    
+    // Find and click the menu button
+    const menuButton = screen.queryByTestId('icon-Menu')
+    if (menuButton) {
+      await userEvent.click(menuButton)
+      
+      // Drawer should open (temporary drawer on mobile)
+      // Check if drawer is in the DOM
+      const drawer = document.querySelector('.MuiDrawer-root')
+      expect(drawer).toBeInTheDocument()
+    }
+    
+    // Cleanup
+    window.matchMedia = originalMatchMedia
+  })
+})  

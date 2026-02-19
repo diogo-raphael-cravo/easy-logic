@@ -143,7 +143,9 @@ describe('TruthTablePage', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText(/Page 1 of 2/)).toBeInTheDocument()
+    // 4 variables = 2^4 = 16 rows, which requires pagination (10 rows per page)
+    expect(screen.getByLabelText('table pagination')).toBeInTheDocument()
+    expect(screen.getByLabelText('Go to page 2')).toBeInTheDocument()
   })
 
   it('handles formula with single variable', () => {
@@ -225,5 +227,48 @@ describe('TruthTablePage', () => {
 
     expect(screen.getByText('A -> B')).toBeInTheDocument()
     expect(screen.getByText('Truth Table')).toBeInTheDocument()
+  })
+
+  it('handles error with Error instance correctly', () => {
+    // This test triggers the generateTruthTable error path with an Error object
+    const formula = { original: 'invalid&&&syntax', latex: '' }
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/truth-table', state: { formula } }]}>
+        <TruthTablePage />
+      </MemoryRouter>
+    )
+
+    // Should show error message with the error details
+    expect(screen.getByText(/Error generating truth table/i)).toBeInTheDocument()
+  })
+
+  it('shows back button when error occurs with non-Error exception', () => {
+    const formula = { original: '!!!invalid', latex: '' }
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/truth-table', state: { formula } }]}>
+        <TruthTablePage />
+      </MemoryRouter>
+    )
+
+    // Back button should still be present
+    expect(screen.getByText('Back')).toBeInTheDocument()
+  })
+
+  it('allows navigation back when error is displayed', async () => {
+    const user = userEvent.setup()
+    const formula = { original: 'invalid!!!', latex: '' }
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/truth-table', state: { formula } }]}>
+        <TruthTablePage />
+      </MemoryRouter>
+    )
+
+    const backBtn = screen.getByText('Back')
+    await user.click(backBtn)
+
+    expect(mockNavigate).toHaveBeenCalledWith('/')
   })
 })
