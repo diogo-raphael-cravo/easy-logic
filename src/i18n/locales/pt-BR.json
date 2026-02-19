@@ -5,6 +5,7 @@
   "formulaInput": "Digite a Fórmula",
   "formulaPlaceholder": "Exemplo: (p ^ q) -> r",
   "remove": "Remover fórmula",
+  "clear": "Limpar",
   "truthTable": "Tabela Verdade",
   "prove": "Provar",
   "syntaxHelp": "Operadores: ^ (E), | (OU), ~ (NÃO), -> (IMPLICA), <-> (SE E SOMENTE SE), () (parênteses), T (verdadeiro), F (falso)",
