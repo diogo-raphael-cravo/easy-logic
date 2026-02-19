@@ -1,11 +1,9 @@
 // Mock for @mui/icons-material to avoid EMFILE (too many open files) on Windows
 // This provides simple mock components for all icon imports
 
-import React from 'react'
-
 // Create a factory function that returns a mock icon component
 const createMockIcon = (name: string) => {
-  const MockIcon = (props: any) => (
+  const MockIcon = (props: Record<string, unknown>) => (
     <svg data-testid={`icon-${name}`} {...props}>
       <text>{name}</text>
     </svg>

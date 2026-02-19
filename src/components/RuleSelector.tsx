@@ -37,7 +37,7 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
   const [userInput, setUserInput] = useState('')
 
   const handleRuleClick = (rule: ApplicableRule) => {
-    if (!rule.applicable || disabled) return
+    if (!rule.applicable || disabled) {return}
 
     // Rules that need user input
     const needsInput = ['assume', 'or_intro_left', 'or_intro_right', 'lem'].includes(rule.id)
@@ -82,7 +82,7 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
 
       {categories.map((category) => {
         const categoryRules = rules.filter((r) => r.category === category.id)
-        if (categoryRules.length === 0) return null
+        if (categoryRules.length === 0) {return null}
 
         return (
           <Box key={category.id} sx={{ mb: 3 }}>
@@ -153,9 +153,9 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
           />
 
           <FormHelperText id="input-helper-text" sx={{ mt: 1 }}>
-            {!userInput.trim()
-              ? t('enterFormulaToApply') || 'Enter a formula above to enable the Apply button'
-              : t('pressEnterToApply') || 'Press Enter or click Apply to continue'}
+            {userInput.trim()
+              ? t('pressEnterToApply') || 'Press Enter or click Apply to continue'
+              : t('enterFormulaToApply') || 'Enter a formula above to enable the Apply button'}
           </FormHelperText>
 
           <Box sx={{ mt: 2 }}>
@@ -175,9 +175,9 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
           <Button onClick={handleCancel}>{t('cancel')}</Button>
           <Tooltip
             title={
-              !userInput.trim()
-                ? t('applyDisabledTooltip') || 'Enter a formula to continue'
-                : ''
+              userInput.trim()
+                ? ''
+                : t('applyDisabledTooltip') || 'Enter a formula to continue'
             }
             disableHoverListener={userInput.trim() !== ''}
           >

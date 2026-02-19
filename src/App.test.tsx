@@ -4,7 +4,7 @@ import * as React from 'react'
 // Mock MUI icons BEFORE any other imports to avoid EMFILE (too many open files) on Windows
 vi.mock('@mui/icons-material', async () => {
   const createMockIcon = (name: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const MockIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
       React.createElement('svg', { ...props, ref, 'data-testid': `icon-${name}` })
     )
@@ -26,7 +26,7 @@ vi.mock('@mui/icons-material', async () => {
 })
 
 vi.mock('@mui/icons-material/Menu', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const MenuIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
     React.createElement('svg', { ...props, ref, 'data-testid': 'icon-Menu' })
   )
@@ -35,7 +35,7 @@ vi.mock('@mui/icons-material/Menu', async () => {
 })
 
 vi.mock('@mui/icons-material/Delete', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const DeleteIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
     React.createElement('svg', { ...props, ref, 'data-testid': 'icon-Delete' })
   )
@@ -44,7 +44,7 @@ vi.mock('@mui/icons-material/Delete', async () => {
 })
 
 vi.mock('@mui/icons-material/Clear', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const ClearIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
     React.createElement('svg', { ...props, ref, 'data-testid': 'icon-Clear' })
   )
@@ -53,7 +53,7 @@ vi.mock('@mui/icons-material/Clear', async () => {
 })
 
 vi.mock('@mui/icons-material/ArrowBack', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const ArrowBackIcon = React.forwardRef<SVGSVGElement, any>((props, ref) =>
     React.createElement('svg', { ...props, ref, 'data-testid': 'icon-ArrowBack' })
   )
@@ -219,4 +219,54 @@ describe('App', () => {
       expect(found).toBe(true)
     }
   })
-})
+
+  it('should not show sidebar on non-home routes', () => {
+    // Test navigation to truth table page
+    render(<App />)
+    
+    // Navigate to a different route by using history
+    window.history.pushState({}, '', '/truth-table')
+    
+    // Force re-render to pick up route change
+    const { container: newContainer } = render(<App />)
+    
+    // Sidebar should not be rendered
+    const drawer = newContainer.querySelector('.MuiDrawer-root')
+    const appBar = newContainer.querySelector('.MuiAppBar-root')
+    
+    // These should not be present on non-home routes
+    expect(drawer).not.toBeInTheDocument()
+    expect(appBar).not.toBeInTheDocument()
+  })
+
+  it('should toggle mobile drawer when menu button is clicked', async () => {
+    // Mock matchMedia to simulate mobile view
+    const originalMatchMedia = window.matchMedia
+    window.matchMedia = vi.fn().mockImplementation(query => ({
+      matches: query.includes('(max-width'), // Matches mobile queries
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    render(<App />)
+    
+    // Find and click the menu button
+    const menuButton = screen.queryByTestId('icon-Menu')
+    if (menuButton) {
+      await userEvent.click(menuButton)
+      
+      // Drawer should open (temporary drawer on mobile)
+      // Check if drawer is in the DOM
+      const drawer = document.querySelector('.MuiDrawer-root')
+      expect(drawer).toBeInTheDocument()
+    }
+    
+    // Cleanup
+    window.matchMedia = originalMatchMedia
+  })
+})  

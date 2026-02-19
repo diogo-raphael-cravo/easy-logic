@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-02-19T17:53:48.399Z",
+  "generatedAt": "2026-02-19T19:39:50.096Z",
   "managedFiles": [
     ".github/copilot-instructions.md",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -33,17 +33,17 @@
     "vitest.config.ts"
   ],
   "hashes": {
-    ".github/copilot-instructions.md": "c366929199d42ef996e67e625c4d03fa00ca85d7bbd5dc7013dc1fc04512c284",
+    ".github/copilot-instructions.md": "557cb95b03e005a3f6a3a5daa3228c8f8b159e04f59de3e312adde5eeb7a4257",
     ".github/PULL_REQUEST_TEMPLATE.md": "83834d47acfb32793f025d04c20130c6daf51587e796e47507687511c3f3b579",
-    ".github/workflows/build.yml": "12bd5982a5894a4afeaf396ff7e2309eeea4ecd49a6558623f1c2277c222f0ee",
-    ".github/workflows/ci.yml": "e25cbc8051e2feafc5314d26b816c0fc637acb674378e53792fc50fbe5113d36",
+    ".github/workflows/build.yml": "7a4f7791db0dda6e5a3366fc189e93d4d2d6a73f79a0c2b2568cb9c14c4b5cb2",
+    ".github/workflows/ci.yml": "d6b840dfeac8334da8d850cec9cff8d41c9d9ca088f58a75da0be5e0de101ae4",
     ".gitignore": "903450e1ee526c99e5b40b6d1692f01377cc1221e28990e54d618b4dd7979038",
     ".husky/pre-commit": "f27d73fd109e60b220b8cd48a5f2687048b5381b2ed7c85d0959855bb6dfd8e7",
-    ".husky/pre-commit.cjs": "5a9634b2882894ebd4908cc0d13e91cf95d5f79cf46bf631cdfb509aaf96d5df",
+    ".husky/pre-commit.cjs": "88c319caf79c74ee1a08ab92a2ac3f262ec3f2be482b78b54a9f2059030a3a6f",
     ".vscode/settings.json": "5bbfc47f9dd0b8ac6b42cfe4805ae95b677543e6cd444cd6ffb8b5fa6ed64ae0",
-    "eslint.config.js": "70abb57cc82455ae4aca7421c959effb63edf50c9a67d8db3915e7407682c240",
+    "eslint.config.js": "f7a27eb0ac76da2e8a85b0aa99b45968c65b55b1d8156a6550f214f5705241e9",
     "index.html": "592f6f45acd776012077d54a885f6baa8b4b6c2d0f1ab1fbd6aec4fb4327250b",
-    "package.json": "9fe2a2f04a2289acbc93c1b835431c935490707c8f52cd2153cee013cbeef664",
+    "package.json": "cf539a3f75b758326b59fbf885baf36528ce1322fcc40ff724c386f4cdd21fb5",
     "README.md": "74bf94b5ffe68ca22ea6a3dc23786bc06a6a697424fab1b2710ae86d2a0dd18a",
     "scripts/postinstall.cjs": "e6fba77543ccb6cd4ad90853a30cef54db07985fcb9b7628785cf6c002b9580e",
     "scripts/postinstall.test.ts": "998e1c563d890bce84caf9b685993af2e84526231858f096d34b9978a42401f7",
@@ -60,6 +60,6 @@
     "tsconfig.json": "e09b1d7398a757eae35c19efcd50710803fe8df7e8d6414d2b6f595166ebf906",
     "tsconfig.node.json": "b2bf1a9053b26138679d790bdcd689042fb4ee157b0673724e4a2eb86a6d8ef5",
     "vite.config.ts": "3693673c5b415faae61e917ee56f50c5117ac124d9824a5db96aa1ab90f80483",
-    "vitest.config.ts": "bb36191b4cc203e1cf7da833dd1ae637d98ebed1bbdfda5d82b2dd2da0b35281"
+    "vitest.config.ts": "a610895d40727bc6581512859a29ff4fcd400b819c060ca7ba1de1472f150da9"
   }
 }

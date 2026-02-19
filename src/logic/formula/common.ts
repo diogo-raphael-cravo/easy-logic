@@ -47,8 +47,8 @@ export function extractVariables(formula: Formula): string[] {
     if (f.type === FormulaType.VAR && f.value) {
       vars.add(f.value)
     }
-    if (f.left) traverse(f.left)
-    if (f.right) traverse(f.right)
+    if (f.left) {traverse(f.left)}
+    if (f.right) {traverse(f.right)}
   }
 
   traverse(formula)

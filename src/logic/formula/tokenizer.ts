@@ -15,17 +15,17 @@ export class Tokenizer {
   }
 
   private peek(): string | null {
-    if (this.pos >= this.input.length) return null
+    if (this.pos >= this.input.length) {return null}
     return this.input[this.pos]
   }
 
   private peekTwo(): string | null {
-    if (this.pos + 1 >= this.input.length) return null
+    if (this.pos + 1 >= this.input.length) {return null}
     return this.input.substring(this.pos, this.pos + 2)
   }
 
   private peekThree(): string | null {
-    if (this.pos + TWO_CHAR_OPERATOR_LENGTH >= this.input.length) return null
+    if (this.pos + TWO_CHAR_OPERATOR_LENGTH >= this.input.length) {return null}
     return this.input.substring(this.pos, this.pos + THREE_CHAR_OPERATOR_LENGTH)
   }
 

@@ -642,7 +642,7 @@ export default function ProofAssistantPage() {
 
       {/* Success Snackbar */}
       <Snackbar
-        open={!!successMessage}
+        open={Boolean(successMessage)}
         autoHideDuration={6000}
         onClose={() => setSuccessMessage(null)}
         message={successMessage}

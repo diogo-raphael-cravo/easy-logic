@@ -338,7 +338,6 @@ describe('ProofAssistantPage', () => {
   })
 
   it('should validate empty custom goal', async () => {
-    const user = userEvent.setup()
     renderComponent()
     
     const startButton = screen.getByRole('button', { name: /Start Proof/i })
@@ -670,6 +669,14 @@ describe('ProofAssistantPage', () => {
         break // Can't reset, exit loop
       }
     }
+  })
+
+  it('should handle missing location state gracefully', () => {
+    // This is already tested by default renderComponent which uses empty formula
+    renderComponent()
+    
+    // Should still render without errors
+    expect(screen.getByText('Proof Assistant')).toBeInTheDocument()
   })
 })
 

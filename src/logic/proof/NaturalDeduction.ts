@@ -82,7 +82,7 @@ export class NaturalDeduction implements ProofSystem {
    * Get one step from the state by ID. Returns null if selection is invalid.
    */
   private getOneStep(state: ProofState, selectedSteps: number[]): ProofStep | null {
-    if (selectedSteps.length !== 1) return null
+    if (selectedSteps.length !== 1) {return null}
     return state.steps.find(s => s.id === selectedSteps[0]) || null
   }
 
@@ -90,10 +90,10 @@ export class NaturalDeduction implements ProofSystem {
    * Get two steps from the state by IDs. Returns null if selection is invalid.
    */
   private getTwoSteps(state: ProofState, selectedSteps: number[]): [ProofStep, ProofStep] | null {
-    if (selectedSteps.length !== 2) return null
+    if (selectedSteps.length !== 2) {return null}
     const step1 = state.steps.find(s => s.id === selectedSteps[0])
     const step2 = state.steps.find(s => s.id === selectedSteps[1])
-    if (!step1 || !step2) return null
+    if (!step1 || !step2) {return null}
     return [step1, step2]
   }
 
@@ -142,7 +142,7 @@ export class NaturalDeduction implements ProofSystem {
     try {
       switch (rule.id) {
         case 'assume':
-          if (!userInput) return null
+          if (!userInput) {return null}
           return {
             id: newId,
             lineNumber: this.computeLineNumber(state, true),
@@ -156,12 +156,12 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'mp': {
           const steps = this.getTwoSteps(state, selectedSteps)
-          if (!steps) return null
+          if (!steps) {return null}
           const [step1, step2] = steps
 
           // Try both orders: (P, P→Q) and (P→Q, P)
           const result = this.tryModusPonens(step1, step2) || this.tryModusPonens(step2, step1)
-          if (!result) return null
+          if (!result) {return null}
 
           return {
             id: newId,
@@ -177,12 +177,12 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'mt': {
           const steps = this.getTwoSteps(state, selectedSteps)
-          if (!steps) return null
+          if (!steps) {return null}
           const [step1, step2] = steps
 
           // Try both orders: (P→Q, ¬Q) and (¬Q, P→Q)
           const result = this.tryModusTollens(step1, step2) || this.tryModusTollens(step2, step1)
-          if (!result) return null
+          if (!result) {return null}
 
           return {
             id: newId,
@@ -198,7 +198,7 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'and_intro': {
           const steps = this.getTwoSteps(state, selectedSteps)
-          if (!steps) return null
+          if (!steps) {return null}
           const [step1, step2] = steps
 
           return {
@@ -215,10 +215,10 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'and_elim_left': {
           const step = this.getOneStep(state, selectedSteps)
-          if (!step) return null
+          if (!step) {return null}
 
           const parsed = tokenizeAndParse(step.formula)
-          if (parsed.type !== FormulaType.AND || !parsed.left) return null
+          if (parsed.type !== FormulaType.AND || !parsed.left) {return null}
 
           return {
             id: newId,
@@ -234,10 +234,10 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'and_elim_right': {
           const step = this.getOneStep(state, selectedSteps)
-          if (!step) return null
+          if (!step) {return null}
 
           const parsed = tokenizeAndParse(step.formula)
-          if (parsed.type !== FormulaType.AND || !parsed.right) return null
+          if (parsed.type !== FormulaType.AND || !parsed.right) {return null}
 
           return {
             id: newId,
@@ -253,7 +253,7 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'or_intro_left': {
           const step = this.getOneStep(state, selectedSteps)
-          if (!step || !userInput) return null
+          if (!step || !userInput) {return null}
 
           return {
             id: newId,
@@ -269,7 +269,7 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'or_intro_right': {
           const step = this.getOneStep(state, selectedSteps)
-          if (!step || !userInput) return null
+          if (!step || !userInput) {return null}
 
           return {
             id: newId,
@@ -285,11 +285,11 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'double_neg': {
           const step = this.getOneStep(state, selectedSteps)
-          if (!step) return null
+          if (!step) {return null}
 
           const parsed = tokenizeAndParse(step.formula)
           if (parsed.type !== FormulaType.NOT || !parsed.left || parsed.left.type !== FormulaType.NOT || !parsed.left.left)
-            return null
+            {return null}
 
           return {
             id: newId,
@@ -305,13 +305,13 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'impl_intro': {
           // Close the current assumption
-          if (state.currentDepth === 0) return null
+          if (state.currentDepth === 0) {return null}
           
           // Find the assumption at current depth and the conclusion
           const assumption = state.steps.find(s => s.depth === state.currentDepth && s.ruleKey === RULE_KEYS.ASSUME)
           const conclusion = state.steps.length > 0 ? state.steps[state.steps.length - 1] : null
           
-          if (!assumption || !conclusion || conclusion.depth !== state.currentDepth) return null
+          if (!assumption || !conclusion || conclusion.depth !== state.currentDepth) {return null}
 
           // Line number goes back to parent depth by incrementing from assumption's line number
           // This ensures proper numbering after the subproof block
@@ -335,10 +335,10 @@ export class NaturalDeduction implements ProofSystem {
           // Disjunction elimination (proof by cases)
           // User selects a disjunction P∨Q, we create two branches with assumptions P and Q
           const step = this.getOneStep(state, selectedSteps)
-          if (!step) return null
+          if (!step) {return null}
 
           const parsed = tokenizeAndParse(step.formula)
-          if (parsed.type !== FormulaType.OR || !parsed.left || !parsed.right) return null
+          if (parsed.type !== FormulaType.OR || !parsed.left || !parsed.right) {return null}
 
           // Store the original formula - the UI will detect OR_ELIM and handle branching
           // We don't use brackets in the actual formula since they're not parseable
@@ -356,7 +356,7 @@ export class NaturalDeduction implements ProofSystem {
 
         case 'lem': {
           // Law of Excluded Middle: introduce P ∨ ¬P for any formula P
-          if (!userInput || userInput.trim() === '') return null
+          if (!userInput || userInput.trim() === '') {return null}
           
           const trimmed = userInput.trim()
           
@@ -381,13 +381,13 @@ export class NaturalDeduction implements ProofSystem {
         case 'disj_syl': {
           // Disjunctive Syllogism: From P∨Q and ¬P, derive Q (or from P∨Q and ¬Q, derive P)
           const steps = this.getTwoSteps(state, selectedSteps)
-          if (!steps) return null
+          if (!steps) {return null}
           const [step1, step2] = steps
 
           // Try both orders
           const result = this.tryDisjunctiveSyllogism(step1, step2) || 
                         this.tryDisjunctiveSyllogism(step2, step1)
-          if (!result) return null
+          if (!result) {return null}
 
           return {
             id: newId,
@@ -412,7 +412,7 @@ export class NaturalDeduction implements ProofSystem {
 
   private tryModusPonens(stepP: ProofStep, stepImpl: ProofStep): string | null {
     const impl = parseImplication(stepImpl.formula)
-    if (!impl) return null
+    if (!impl) {return null}
 
     // Check if stepP matches the antecedent
     if (normalizeFormula(stepP.formula) === normalizeFormula(impl.antecedent)) {
@@ -423,12 +423,12 @@ export class NaturalDeduction implements ProofSystem {
 
   private tryModusTollens(stepImpl: ProofStep, stepNegQ: ProofStep): string | null {
     const impl = parseImplication(stepImpl.formula)
-    if (!impl) return null
+    if (!impl) {return null}
 
     // Check if stepNegQ is ¬Q where Q is the consequent
     try {
       const parsedNegQ = tokenizeAndParse(stepNegQ.formula)
-      if (parsedNegQ.type !== FormulaType.NOT || !parsedNegQ.left) return null
+      if (parsedNegQ.type !== FormulaType.NOT || !parsedNegQ.left) {return null}
 
       const negatedFormula = formulaToString(parsedNegQ.left)
       
@@ -479,7 +479,7 @@ export class NaturalDeduction implements ProofSystem {
   }
 
   validateProof(state: ProofState): boolean {
-    if (state.steps.length === 0) return false
+    if (state.steps.length === 0) {return false}
     
     const lastStep = state.steps[state.steps.length - 1]
     
