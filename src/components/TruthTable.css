@@ -1,80 +1,120 @@
 .truth-table-container {
   width: 100%;
   margin-top: 2rem;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 
 .truth-table-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .truth-table-header h2 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
 }
 
 .truth-table-wrapper {
   overflow-x: auto;
-  border: 1px solid rgba(100, 108, 255, 0.3);
-  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
   margin-bottom: 2rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.truth-table-wrapper:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--card-hover-shadow);
 }
 
 .truth-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: rgba(100, 108, 255, 0.05);
+  background: linear-gradient(180deg, rgba(102, 126, 234, 0.05) 0%, rgba(102, 126, 234, 0.02) 100%);
 }
 
 .truth-table thead {
-  background-color: rgba(100, 108, 255, 0.1);
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, rgba(102, 126, 234, 0.08) 100%);
+  border-bottom: 2px solid var(--primary-light);
 }
 
 .truth-table th {
-  padding: 0.75rem;
+  padding: 1rem 0.75rem;
   text-align: center;
-  font-weight: 600;
-  border-bottom: 2px solid rgba(100, 108, 255, 0.3);
-  font-family: monospace;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color);
+  font-family: 'Courier New', monospace;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
 }
 
 .truth-table td {
-  padding: 0.75rem;
+  padding: 0.9rem 0.75rem;
   text-align: center;
-  border-bottom: 1px solid rgba(100, 108, 255, 0.2);
-  font-family: monospace;
-}
-
-.truth-table tbody tr:hover {
-  background-color: rgba(100, 108, 255, 0.1);
-}
-
-.value-cell {
+  border-bottom: 1px solid var(--border-color);
+  font-family: 'Courier New', monospace;
   font-weight: 500;
 }
 
-.result-column {
-  background-color: rgba(100, 108, 255, 0.15);
+.truth-table tbody tr {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.truth-table tbody tr:hover {
+  background-color: rgba(102, 126, 234, 0.12);
+}
+
+.truth-table tbody tr:nth-child(even) {
+  background-color: rgba(102, 126, 234, 0.02);
+}
+
+.value-cell {
   font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.result-column {
+  background: linear-gradient(180deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.1) 100%);
+  font-weight: 700;
+  border-left: 2px solid var(--primary-light);
 }
 
 .result-cell {
-  background-color: rgba(100, 108, 255, 0.1);
-  font-weight: 600;
+  background: rgba(102, 126, 234, 0.08);
+  font-weight: 700;
 }
 
 .result-value {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  display: inline-block;
+  min-width: 60px;
 }
 
 .result-value.true {
-  background-color: rgba(0, 200, 0, 0.2);
-  color: #00c800;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.15) 100%);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
 .result-value.false {
-  background-color: rgba(200, 0, 0, 0.2);
-  color: #c80000;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.15) 100%);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
 }
 
 .pagination {
@@ -82,80 +122,70 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
-}
-
-.pagination-button {
-  padding: 0.5rem 1rem;
-  background-color: rgba(100, 108, 255, 0.1);
-  border: 1px solid rgba(100, 108, 255, 0.3);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.pagination-button:hover:not(:disabled) {
-  background-color: rgba(100, 108, 255, 0.2);
-  border-color: rgba(100, 108, 255, 0.5);
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-top: 3rem;
+  padding: 2rem 0;
+  flex-wrap: wrap;
 }
 
 .pagination-info {
-  font-weight: 500;
-  min-width: 150px;
-  text-align: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-  padding: 0 1rem;
+.pagination-button {
+  padding: 0.75rem 1.25rem;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1.5px solid var(--primary-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
 }
 
-/* MUI Pagination Customization */
-.pagination.MuiPagination-root {
-  justify-content: center;
+.pagination-button:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.25);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
+  transform: translateY(-2px);
 }
 
-.pagination .MuiPaginationItem-root {
-  font-weight: 500;
+.pagination-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.pagination .MuiPaginationItem-page.Mui-selected {
-  background-color: rgba(100, 108, 255, 0.6);
-  color: #fff;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.4);
-  border: none;
+.pagination-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
-.pagination .MuiPaginationItem-page.Mui-selected:hover {
-  background-color: rgba(100, 108, 255, 0.75);
-  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.5);
-}
-
-.pagination .MuiPaginationItem-previousNext {
-  transition: all 0.2s;
-}
-
-@media (max-width: 768px) {
-  .pagination-container {
-    padding: 0 0.5rem;
+@media (prefers-color-scheme: light) {
+  .truth-table-wrapper {
+    border-color: rgba(102, 126, 234, 0.2);
   }
 
-  .pagination .MuiPaginationItem-root {
-    margin: 0 0.25rem;
+  .truth-table {
+    background: linear-gradient(180deg, rgba(102, 126, 234, 0.03) 0%, rgba(102, 126, 234, 0.01) 100%);
   }
 
-  .pagination .MuiPaginationItem-ellipsis {
-    margin: 0 0.25rem;
+  .truth-table thead {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, rgba(102, 126, 234, 0.05) 100%);
   }
+
+  .truth-table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.08);
+  }
+
+  .truth-table tbody tr:nth-child(even) {
+    background-color: rgba(102, 126, 234, 0.01);
+  }
+}
 }
 
 @media (prefers-color-scheme: light) {

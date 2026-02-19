@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-02-19T19:39:50.096Z",
+  "generatedAt": "2026-02-19T21:24:00.000Z",
   "managedFiles": [
     ".github/copilot-instructions.md",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -43,7 +43,7 @@
     ".vscode/settings.json": "5bbfc47f9dd0b8ac6b42cfe4805ae95b677543e6cd444cd6ffb8b5fa6ed64ae0",
     "eslint.config.js": "f7a27eb0ac76da2e8a85b0aa99b45968c65b55b1d8156a6550f214f5705241e9",
     "index.html": "592f6f45acd776012077d54a885f6baa8b4b6c2d0f1ab1fbd6aec4fb4327250b",
-    "package.json": "cf539a3f75b758326b59fbf885baf36528ce1322fcc40ff724c386f4cdd21fb5",
+    "package.json": "52f3d4ee8b2bc68ecc13beb74d06596e1d54e0dbb6197bc6e93cf5d4b12fc189",
     "README.md": "74bf94b5ffe68ca22ea6a3dc23786bc06a6a697424fab1b2710ae86d2a0dd18a",
     "scripts/postinstall.cjs": "e6fba77543ccb6cd4ad90853a30cef54db07985fcb9b7628785cf6c002b9580e",
     "scripts/postinstall.test.ts": "998e1c563d890bce84caf9b685993af2e84526231858f096d34b9978a42401f7",
@@ -53,7 +53,7 @@
     "scripts/template-integrity.test.ts": "2fc9d6a58a17db2f866ac858451bd368ed2a6e1ccf3d3f85b1d072408399a39d",
     "scripts/vitest-output.cjs": "1268ca3678d1082846cbdbc0064ba9ab92dc41dcb31a34daa0812e67651b0d4b",
     "scripts/vitest-output.test.ts": "76c4eb6c3c4984b710d2ff74ccfeccd72343330c97bbb097d49cb73fc15c7d36",
-    "src/index.css": "c05f2f342f012b1acac761ae0ffffe59b7cd306b76b1d505989754cba6e6164c",
+    "src/index.css": "27056f7192f603fd0039d5e92d21e928b13603a884ba2ea9bb17659e481f7058",
     "src/main.tsx": "633f411aafdf01b1742bbffdfbaca66ca7016ddeafbbaa4c06678c622eb1ccb9",
     "src/test.setup.ts": "f6b58d05983229bf5f0c6a39fcfd9e9b40c83a8bfff245c17fb23fca8116a0dd",
     "src/vite-env.d.ts": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92",
