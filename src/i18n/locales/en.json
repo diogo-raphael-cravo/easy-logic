@@ -64,6 +64,7 @@
   "goalToProve": "Goal to Prove",
   "givenPremises": "Given Premises:",
   "proofSteps": "Proof Steps",
+  "addStep": "+ Step",
   "reset": "Reset",
   "noStepsYet": "No steps yet. Start by selecting a rule below.",
   "selectedSteps": "Selected {{count}} step(s):",

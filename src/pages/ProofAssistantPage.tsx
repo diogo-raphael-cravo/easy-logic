@@ -176,16 +176,18 @@ export default function ProofAssistantPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 }, gap: { xs: 1, sm: 2 } }}>
-        <IconButton onClick={handleBackClick} aria-label={t('ariaBack')}>
-          <ArrowBack />
-        </IconButton>
-        <Typography variant="h4" component="h1" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-          {t('proofAssistant')}
-        </Typography>
-      </Box>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 }, bgcolor: '#ffffff', minHeight: '100vh' }}>
+      {/* Header - only show when dialog is closed and no active proof */}
+      {!goalDialogOpen && !proofState.goal && (
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 }, gap: { xs: 1, sm: 2 } }}>
+          <IconButton onClick={handleBackClick} aria-label={t('ariaBack')} sx={{ bgcolor: '#6b5b87', color: '#fff', '&:hover': { bgcolor: '#5a4a76' } }}>
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="h4" component="h1" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' }, color: '#2a1f35', fontWeight: 700 }}>
+            {t('proofAssistant')}
+          </Typography>
+        </Box>
+      )}
 
       {/* Goal Selection Dialog */}
       <Dialog
@@ -222,6 +224,16 @@ export default function ProofAssistantPage() {
                   variant={selectedKB === kb.id ? 'contained' : 'outlined'}
                   size="small"
                   onClick={() => setSelectedKB(kb.id)}
+                  sx={{
+                    bgcolor: selectedKB === kb.id ? '#6b5b87' : 'transparent',
+                    color: selectedKB === kb.id ? '#fff' : '#9b8fc4',
+                    borderColor: '#9b8fc4',
+                    fontWeight: 700,
+                    '&:hover': {
+                      bgcolor: selectedKB === kb.id ? '#5a4a76' : 'rgba(155, 143, 196, 0.08)',
+                      borderColor: '#8877b3',
+                    },
+                  }}
                 >
                   {t(kb.nameKey)}
                 </Button>
@@ -312,6 +324,19 @@ export default function ProofAssistantPage() {
             onClick={handleCustomGoalSubmit}
             variant="contained"
             disabled={!customGoal.trim()}
+            sx={{
+              bgcolor: '#6b5b87',
+              color: '#fff',
+              fontWeight: 700,
+              '&:hover': {
+                bgcolor: '#5a4a76',
+              },
+              '&.Mui-disabled': {
+                bgcolor: '#beb3d6',
+                color: '#3d3450',
+                fontWeight: 700,
+              },
+            }}
           >
             {t('startProof')}
           </Button>
@@ -321,12 +346,49 @@ export default function ProofAssistantPage() {
       {/* Main Content */}
       {proofState.goal && (
         <Box>
+          {/* Header with Back Button */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <IconButton 
+                onClick={handleBackClick} 
+                aria-label={t('ariaBack')}
+                sx={{
+                  bgcolor: '#6b5b87',
+                  color: '#fff',
+                  '&:hover': {
+                    bgcolor: '#5a4a76',
+                  },
+                  width: 48,
+                  height: 48,
+                }}
+              >
+                <ArrowBack />
+              </IconButton>
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#2a1f35', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                {t('proofAssistant')}
+              </Typography>
+            </Box>
+            <IconButton
+              onClick={handleReset}
+              aria-label={t('reset')}
+              data-testid="icon-Refresh"
+              sx={{
+                color: '#6b5b87',
+                '&:hover': {
+                  bgcolor: 'rgba(107, 91, 135, 0.1)',
+                },
+              }}
+            >
+              <Refresh />
+            </IconButton>
+          </Box>
+
           {/* Goal Display */}
-          <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
-            <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, bgcolor: '#d4cbeb', color: '#2a1f35', border: 'none', borderRadius: '12px', boxShadow: 'none' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' }, fontWeight: 700, color: '#2a1f35' }}>
               {t('goalToProve')}
             </Typography>
-            <Typography variant="h5" sx={{ fontFamily: 'monospace', fontSize: { xs: '1.1rem', sm: '1.5rem' }, wordBreak: 'break-word' }}>
+            <Typography variant="h5" sx={{ fontFamily: 'monospace', fontSize: { xs: '1.1rem', sm: '1.5rem' }, wordBreak: 'break-word', fontWeight: 600, color: '#2a1f35' }}>
               {proofState.goal}
             </Typography>
             {proofState.premises.length > 0 && (
@@ -340,7 +402,7 @@ export default function ProofAssistantPage() {
                       key={index}
                       label={premise}
                       size="small"
-                      sx={{ fontFamily: 'monospace', bgcolor: 'rgba(255,255,255,0.2)' }}
+                      sx={{ fontFamily: 'monospace', bgcolor: 'rgba(200, 191, 224, 0.3)', color: '#2a1f35', fontWeight: 600 }}
                     />
                   ))}
                 </Box>
@@ -571,17 +633,9 @@ export default function ProofAssistantPage() {
           )}
 
           {/* Proof Steps */}
-          <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, minHeight: { xs: 150, sm: 200 } }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-              <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>{t('proofSteps')}</Typography>
-              <Button
-                size="small"
-                onClick={handleReset}
-                disabled={proofState.steps.length === 0}
-                startIcon={<Refresh />}
-              >
-                {t('reset')}
-              </Button>
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, minHeight: { xs: 150, sm: 200 }, bgcolor: '#f5f3f9', border: '1px solid #e0dce8', borderRadius: '12px', boxShadow: 'none' }}>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' }, fontWeight: 700, color: '#2a1f35' }}>{t('proofSteps')}</Typography>
             </Box>
 
             {proofState.steps.length === 0 ? (
@@ -630,7 +684,7 @@ export default function ProofAssistantPage() {
           </Paper>
 
           {/* Rule Selector */}
-          <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 } }}>
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, bgcolor: '#ffffff', border: '1px solid #e0dce8', borderRadius: '12px', boxShadow: 'none' }}>
             <RuleSelector
               rules={applicableRules}
               onRuleSelect={handleRuleSelect}

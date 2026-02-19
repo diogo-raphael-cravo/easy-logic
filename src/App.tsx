@@ -65,6 +65,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
             '& .MuiDrawer-paper': {
               width: DRAWER_WIDTH,
               boxSizing: 'border-box',
+              backgroundColor: '#f5f3f8',
+              borderRight: '1px solid #e8e4f0',
             },
           }}
         >
@@ -79,6 +81,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           flexDirection: 'column',
           alignItems: 'center',
           mt: isMobile && showSidebar ? '64px' : 0,
+          bgcolor: '#f5f3f8',
+          minHeight: '100vh',
         }}
       >
         {children}

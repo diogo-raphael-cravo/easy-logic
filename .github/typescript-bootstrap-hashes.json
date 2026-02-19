@@ -53,7 +53,7 @@
     "scripts/template-integrity.test.ts": "2fc9d6a58a17db2f866ac858451bd368ed2a6e1ccf3d3f85b1d072408399a39d",
     "scripts/vitest-output.cjs": "1268ca3678d1082846cbdbc0064ba9ab92dc41dcb31a34daa0812e67651b0d4b",
     "scripts/vitest-output.test.ts": "76c4eb6c3c4984b710d2ff74ccfeccd72343330c97bbb097d49cb73fc15c7d36",
-    "src/index.css": "27056f7192f603fd0039d5e92d21e928b13603a884ba2ea9bb17659e481f7058",
+    "src/index.css": "fc59a60dc66829fd04a8678cd7d9ec78c90ce8c7f00164a1cd1991e9f593590b",
     "src/main.tsx": "633f411aafdf01b1742bbffdfbaca66ca7016ddeafbbaa4c06678c622eb1ccb9",
     "src/test.setup.ts": "f6b58d05983229bf5f0c6a39fcfd9e9b40c83a8bfff245c17fb23fca8116a0dd",
     "src/vite-env.d.ts": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92",

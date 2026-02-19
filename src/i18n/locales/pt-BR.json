@@ -64,6 +64,7 @@
   "goalToProve": "Objetivo a Provar",
   "givenPremises": "Premissas Dadas:",
   "proofSteps": "Passos da Prova",
+  "addStep": "+ Passo",
   "reset": "Reiniciar",
   "noStepsYet": "Nenhum passo ainda. Comece selecionando uma regra abaixo.",
   "selectedSteps": "{{count}} passo(s) selecionado(s):",
