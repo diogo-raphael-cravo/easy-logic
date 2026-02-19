@@ -373,10 +373,13 @@ export default function ProofAssistantPage() {
               aria-label={t('reset')}
               data-testid="icon-Refresh"
               sx={{
-                color: '#6b5b87',
+                bgcolor: '#6b5b87',
+                color: '#fff',
                 '&:hover': {
-                  bgcolor: 'rgba(107, 91, 135, 0.1)',
+                  bgcolor: '#5a4a76',
                 },
+                width: 48,
+                height: 48,
               }}
             >
               <Refresh />
@@ -528,7 +531,7 @@ export default function ProofAssistantPage() {
               sx={{
                 p: { xs: 3, sm: 6 },
                 textAlign: 'center',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                background: 'linear-gradient(135deg, #9d92ba 0%, #764ba2 50%, #f093fb 100%)',
                 color: 'white',
                 borderRadius: 4,
                 animation: `${bounceIn} 0.8s ease-out, ${rainbowGlow} 3s linear infinite`,

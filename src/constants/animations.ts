@@ -72,10 +72,10 @@ export const floatUp = keyframes`
 export const confettiColors = [
   '#ff0000',
   '#00ff00',
-  '#0000ff',
+  '#9d92ba',
   '#ffff00',
   '#ff00ff',
-  '#00ffff',
+  '#d8c8f0',
   '#ff8800',
   '#88ff00',
   '#ff0088',
