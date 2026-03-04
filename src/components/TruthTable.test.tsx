@@ -373,4 +373,46 @@ describe('TruthTable', () => {
     expect(currentPage).toBeInTheDocument()
     expect(currentPage).toHaveTextContent('1')
   })
+
+  it('highlights rows with false results with result-false class', () => {
+    const rows: TruthTableRow[] = [
+      { assignment: { p: false, q: false }, result: true },
+      { assignment: { p: false, q: true }, result: true },
+      { assignment: { p: true, q: false }, result: false },
+      { assignment: { p: true, q: true }, result: true },
+    ]
+    
+    const { container } = render(<TruthTable variables={['p', 'q']} rows={rows} />)
+    
+    const tableRows = container.querySelectorAll('tbody tr')
+    expect(tableRows).toHaveLength(4)
+    
+    // Row 1: result is true, should not have result-false class
+    expect(tableRows[0]).not.toHaveClass('result-false')
+    
+    // Row 2: result is true, should not have result-false class
+    expect(tableRows[1]).not.toHaveClass('result-false')
+    
+    // Row 3: result is false, should have result-false class
+    expect(tableRows[2]).toHaveClass('result-false')
+    
+    // Row 4: result is true, should not have result-false class
+    expect(tableRows[3]).not.toHaveClass('result-false')
+  })
+
+  it('applies result-false class to all rows with false results', () => {
+    const rows: TruthTableRow[] = [
+      { assignment: { a: false }, result: false },
+      { assignment: { a: true }, result: false },
+    ]
+    
+    const { container } = render(<TruthTable variables={['a']} rows={rows} />)
+    
+    const tableRows = container.querySelectorAll('tbody tr')
+    expect(tableRows).toHaveLength(2)
+    
+    // Both rows should have result-false class since both have false results
+    expect(tableRows[0]).toHaveClass('result-false')
+    expect(tableRows[1]).toHaveClass('result-false')
+  })
 })

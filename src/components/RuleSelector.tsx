@@ -20,7 +20,7 @@ import {
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { ApplicableRule } from '../logic/proof'
-import { LAYOUT, OPACITY } from '../constants/ui'
+import { LAYOUT } from '../constants/ui'
 
 interface RuleSelectorProps {
   rules: ApplicableRule[]
@@ -76,7 +76,7 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+      <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' }, fontWeight: 700, color: '#2a1f35' }}>
         {t('availableRules')}
       </Typography>
 
@@ -86,7 +86,7 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
 
         return (
           <Box key={category.id} sx={{ mb: 3 }}>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            <Typography variant="subtitle2" gutterBottom sx={{ color: '#666', fontWeight: 600, mb: 1.5, fontSize: '0.875rem' }}>
               {category.label}
             </Typography>
 
@@ -107,13 +107,33 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
                 >
                   <span>
                     <Button
-                      variant={rule.applicable ? 'contained' : 'outlined'}
+                      variant="contained"
                       size="small"
                       disabled={!rule.applicable || disabled}
                       onClick={() => handleRuleClick(rule)}
                       sx={{
                         minWidth: isSmallScreen ? 'auto' : `${LAYOUT.RULE_BUTTON_MIN_WIDTH}px`,
-                        opacity: rule.applicable ? 1 : OPACITY.HALF,
+                        bgcolor: rule.applicable ? '#6b5b87' : '#e8e3f0',
+                        color: rule.applicable ? '#fff' : '#8a7b9e',
+                        fontWeight: 700,
+                        borderRadius: '6px',
+                        textTransform: 'uppercase',
+                        fontSize: '0.75rem',
+                        px: 1.5,
+                        py: 0.75,
+                        border: 'none',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          bgcolor: rule.applicable ? '#5a4a76' : '#e8e3f0',
+                          boxShadow: 'none',
+                        },
+                        '&.Mui-disabled': {
+                          bgcolor: '#e8e3f0',
+                          color: '#8a7b9e',
+                          fontWeight: 700,
+                          opacity: 0.5,
+                          filter: 'grayscale(0.4)',
+                        },
                       }}
                     >
                       {t(rule.nameKey)}
@@ -188,6 +208,21 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
                 disabled={!userInput.trim()}
                 aria-disabled={!userInput.trim()}
                 aria-describedby="input-helper-text"
+                sx={{
+                  bgcolor: '#6b5b87',
+                  color: '#fff',
+                  fontWeight: 700,
+                  '&:hover': {
+                    bgcolor: '#5a4a76',
+                  },
+                  '&.Mui-disabled': {
+                    bgcolor: '#e8e3f0',
+                    color: '#8a7b9e',
+                    fontWeight: 700,
+                    opacity: 0.5,
+                    filter: 'grayscale(0.4)',
+                  },
+                }}
               >
                 {t('apply')}
               </Button>

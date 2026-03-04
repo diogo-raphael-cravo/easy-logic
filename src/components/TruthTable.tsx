@@ -52,7 +52,7 @@ export function TruthTable({ variables, rows }: TruthTableProps) {
           </thead>
           <tbody>
             {pageRows.map((row, idx) => (
-              <tr key={startIdx + idx}>
+              <tr key={startIdx + idx} className={row.result ? '' : 'result-false'}>
                 {variables.map((variable) => (
                   <td key={variable} className="value-cell">
                     {row.assignment[variable] ? 'T' : 'F'}

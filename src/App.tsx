@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Box, Drawer, AppBar, Toolbar, IconButton, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Drawer, AppBar, Toolbar, IconButton, useMediaQuery, useTheme, ThemeProvider, createTheme } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import { ExamplesSidebar } from './components/ExamplesSidebar'
 import { ExampleProvider, useExampleContext } from './context/ExampleContext'
@@ -17,6 +17,22 @@ export interface FormulaResult {
 }
 
 const DRAWER_WIDTH = 300
+
+// Create a custom theme with purple primary colors (no blue)
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#9d92ba', // purple from --primary-dark
+      light: '#c8bfe0', // from --primary-light
+      dark: '#6b5b95',
+    },
+    secondary: {
+      main: '#f0c4d4', // pink from --secondary-gradient
+      light: '#f5d4e6',
+      dark: '#e0b4c4',
+    },
+  },
+})
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
@@ -65,6 +81,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
             '& .MuiDrawer-paper': {
               width: DRAWER_WIDTH,
               boxSizing: 'border-box',
+              backgroundColor: '#f5f3f8',
+              borderRight: '1px solid #e8e4f0',
             },
           }}
         >
@@ -79,6 +97,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           flexDirection: 'column',
           alignItems: 'center',
           mt: isMobile && showSidebar ? '64px' : 0,
+          bgcolor: '#f5f3f8',
+          minHeight: '100vh',
         }}
       >
         {children}
@@ -102,13 +122,15 @@ function App() {
   const basename = import.meta.env.DEV ? '/' : '/easy-logic'
   
   return (
-    <BrowserRouter basename={basename}>
-      <ExampleProvider>
-        <AppLayout>
-          <AppContent />
-        </AppLayout>
-      </ExampleProvider>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter basename={basename}>
+        <ExampleProvider>
+          <AppLayout>
+            <AppContent />
+          </AppLayout>
+        </ExampleProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 

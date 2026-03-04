@@ -675,8 +675,8 @@ describe('ProofAssistantPage', () => {
     // This is already tested by default renderComponent which uses empty formula
     renderComponent()
     
-    // Should still render without errors
-    expect(screen.getByText('Proof Assistant')).toBeInTheDocument()
+    // Should still render without errors - dialog should be open initially
+    expect(screen.getByText('Choose a Goal to Prove')).toBeInTheDocument()
   })
 })
 
