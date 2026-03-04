@@ -12,7 +12,7 @@ export function FormulaInput({ onSubmit }: FormulaInputProps) {
   const [input, setInput] = useState('')
   const [errorOpen, setErrorOpen] = useState(false)
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // handleKeyPress is unused and can be removed
     if (e.key === 'Enter') {
       if (input.trim()) {
         onSubmit(input)

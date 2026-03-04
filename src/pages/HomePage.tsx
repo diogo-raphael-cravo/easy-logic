@@ -16,14 +16,8 @@ export function HomePage() {
   const { selectedExample, setSelectedExample } = useExampleContext()
   
   // Wrap the hook with a try-catch for testing environments
-  let isMobile = false
-  try {
-    const theme = useTheme()
-    isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  } catch {
-    // In test environment without ThemeProvider, default to false
-    isMobile = false
-  }
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const handleFormulaSubmit = (formula: string) => {
     const result = parseFormula(formula)

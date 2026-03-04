@@ -34,7 +34,7 @@ const theme = createTheme({
   },
 })
 
-function AppLayout({ children }: { children: React.ReactNode }) {
+function AppLayout({ children }: { readonly children: React.ReactNode }) {
   const { t } = useTranslation()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const theme = useTheme()
