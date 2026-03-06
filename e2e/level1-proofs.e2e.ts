@@ -82,6 +82,17 @@ async function expectProofComplete(page: Page) {
   await expect(page.getByText(/proof complete/i).first()).toBeVisible({ timeout: 5000 })
 }
 
+/** Dismiss the celebration overlay (if visible) and take a screenshot */
+async function screenshotCompletedProof(page: Page, name: string) {
+  // Click the celebration backdrop to dismiss it (not the dialog backdrop)
+  const backdrop = page.locator('.MuiBackdrop-root:not(.MuiModal-backdrop)')
+  if (await backdrop.isVisible()) {
+    await backdrop.click({ position: { x: 10, y: 10 } })
+    await expect(backdrop).not.toBeVisible()
+  }
+  await page.screenshot({ path: `e2e/screenshots/${name}.png`, fullPage: true })
+}
+
 // ---------------------------------------------------------------------------
 // Level 1 Tests
 // ---------------------------------------------------------------------------
@@ -112,6 +123,7 @@ test.describe('Level 1 — Simple Direct Rules', () => {
 
     // Proof should be complete
     await expectProofComplete(page)
+    await screenshotCompletedProof(page, '1-modus-ponens')
   })
 
   // -----------------------------------------------------------------------
@@ -136,6 +148,7 @@ test.describe('Level 1 — Simple Direct Rules', () => {
     await applyRule(page, '∧ Introduction')
 
     await expectProofComplete(page)
+    await screenshotCompletedProof(page, '2-conjunction-intro')
   })
 
   // -----------------------------------------------------------------------
@@ -160,6 +173,7 @@ test.describe('Level 1 — Simple Direct Rules', () => {
     await applyRule(page, '∧ Elimination (Left)')
 
     await expectProofComplete(page)
+    await screenshotCompletedProof(page, '3-conjunction-elim-left')
   })
 
   // -----------------------------------------------------------------------
@@ -184,6 +198,7 @@ test.describe('Level 1 — Simple Direct Rules', () => {
     await applyRule(page, '∧ Elimination (Right)')
 
     await expectProofComplete(page)
+    await screenshotCompletedProof(page, '4-conjunction-elim-right')
   })
 
   // -----------------------------------------------------------------------
@@ -209,6 +224,7 @@ test.describe('Level 1 — Simple Direct Rules', () => {
     await applyRuleWithInput(page, '∨ Introduction (Left)', 'q')
 
     await expectProofComplete(page)
+    await screenshotCompletedProof(page, '5-disjunction-intro-left')
   })
 
   // -----------------------------------------------------------------------
@@ -242,5 +258,6 @@ test.describe('Level 1 — Simple Direct Rules', () => {
     await applyRule(page, '→ Introduction')
 
     await expectProofComplete(page)
+    await screenshotCompletedProof(page, '6-double-negation')
   })
 })
