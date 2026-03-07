@@ -1,5 +1,5 @@
 /**
- * Component for displaying a single proof step
+ * Component for displaying a single proof step with Fitch-style boxing
  */
 
 import { Box, Paper, Typography, Checkbox, IconButton, Tooltip } from '@mui/material'
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { ProofStep as ProofStepType, RULE_KEYS } from '../logic/proof'
 import { FormulaDisplay } from './FormulaDisplay'
 import { parseFormula } from '../logic/formula'
-import { LAYOUT, OPACITY } from '../constants/ui'
+import { OPACITY, FITCH, LAYOUT } from '../constants/ui'
 
 function getBgColor(isSelected: boolean, isPremise: boolean, isBranchStart: boolean): string {
   if (isSelected) {return 'action.selected'}
@@ -23,13 +23,35 @@ function getBorderColor(isPremise: boolean, isBranchStart: boolean): string {
   return 'transparent'
 }
 
+function getBarBorderRadius(
+  isFirst: boolean,
+  isLast: boolean,
+  depth: number,
+  depths: readonly number[],
+): string | number {
+  const isInnermost = depth === depths[depths.length - 1]
+  if (isFirst && isInnermost) {
+    return `${FITCH.BAR_RADIUS_PX}px ${FITCH.BAR_RADIUS_PX}px 0 0`
+  }
+  if (isLast && isInnermost) {
+    return `0 0 ${FITCH.BAR_RADIUS_PX}px ${FITCH.BAR_RADIUS_PX}px`
+  }
+  return 0
+}
+
 interface ProofStepProps {
-  step: ProofStepType
-  isSelectable: boolean
-  isSelected: boolean
-  onToggleSelect: (id: number) => void
-  onDelete?: (id: number) => void
-  canDelete?: boolean
+  readonly step: ProofStepType
+  readonly isSelectable: boolean
+  readonly isSelected: boolean
+  readonly onToggleSelect: (id: number) => void
+  readonly onDelete?: (id: number) => void
+  readonly canDelete?: boolean
+  /** Depth levels of subproofs containing this step (e.g. [1] or [1, 2]) */
+  readonly subproofDepths?: number[]
+  /** True if this step is the first step in its innermost subproof */
+  readonly isFirstInSubproof?: boolean
+  /** True if this step is the last step in its innermost subproof */
+  readonly isLastInSubproof?: boolean
 }
 
 export default function ProofStep({
@@ -39,91 +61,126 @@ export default function ProofStep({
   onToggleSelect,
   onDelete,
   canDelete = false,
+  subproofDepths = [],
+  isFirstInSubproof = false,
+  isLastInSubproof = false,
 }: ProofStepProps) {
   const { t } = useTranslation()
-  const indentation = step.depth * LAYOUT.DEPTH_INDENT_PX
   const isPremise = step.ruleKey === RULE_KEYS.PREMISE
   const isBranchStart = step.ruleKey === RULE_KEYS.OR_ELIM
   
   // Convert formula to LaTeX for proper rendering
   const { latex, error } = parseFormula(step.formula)
 
+  const hasSubproofBars = subproofDepths.length > 0
+
   return (
-    <Paper
-      elevation={1}
+    <Box
+      data-testid="subproof-wrapper"
       sx={{
-        p: { xs: 1, sm: 2 },
-        mb: 1,
-        ml: { xs: `${indentation * OPACITY.HALF}px`, sm: `${indentation}px` },
         display: 'flex',
-        alignItems: 'center',
-        gap: { xs: 1, sm: 2 },
-        flexWrap: { xs: 'wrap', sm: 'nowrap' },
-        cursor: isSelectable ? 'pointer' : 'default',
-        bgcolor: getBgColor(isSelected, isPremise, isBranchStart),
-        borderLeft: (isPremise || isBranchStart) ? '4px solid' : 'none',
-        borderLeftColor: getBorderColor(isPremise, isBranchStart),
-        '&:hover': isSelectable
-          ? {
-              bgcolor: 'action.hover',
-            }
-          : {},
+        alignItems: 'stretch',
+        mb: FITCH.STEP_GAP_PX,
+        ...(isFirstInSubproof && {
+          mt: FITCH.SUBPROOF_SPACING_PX,
+        }),
+        ...(isLastInSubproof && {
+          mb: FITCH.SUBPROOF_SPACING_PX,
+        }),
       }}
-      onClick={() => isSelectable && onToggleSelect(step.id)}
     >
-      {isSelectable && (
-        <Checkbox
-          checked={isSelected}
-          onChange={() => onToggleSelect(step.id)}
-          onClick={(e) => e.stopPropagation()}
-          size="small"
+      {/* Fitch-style depth bars */}
+      {subproofDepths.map((depth) => (
+        <Box
+          key={depth}
+          data-testid={`depth-bar-${depth}`}
+          sx={{
+            width: FITCH.BAR_WIDTH_PX,
+            minHeight: '100%',
+            bgcolor: FITCH.COLORS[(depth - 1) % FITCH.COLORS.length],
+            mr: FITCH.BAR_GAP_PX,
+            borderRadius: getBarBorderRadius(isFirstInSubproof, isLastInSubproof, depth, subproofDepths),
+            flexShrink: 0,
+          }}
         />
-      )}
+      ))}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: 30, sm: 50 } }}>
-        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-          {step.lineNumber || step.id}.
-        </Typography>
-      </Box>
-
-      <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-        <FormulaDisplay latex={latex} error={error} />
-      </Box>
-
-      <Box sx={{ 
-        textAlign: 'right', 
-        minWidth: { xs: 'auto', sm: LAYOUT.RULE_BUTTON_MIN_WIDTH },
-        width: { xs: '100%', sm: 'auto' },
-        mt: { xs: OPACITY.HALF, sm: 0 },
-        pl: { xs: isSelectable ? LAYOUT.SMALL_SPACING_PX : 0, sm: 0 },
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: 1,
-      }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-          {t(step.justificationKey, step.justificationParams)}
-        </Typography>
-        {canDelete && onDelete && (
-          <Tooltip title={t('deleteStep')}>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation()
-                onDelete(step.id)
-              }}
-              sx={{ 
-                opacity: 0.6, 
-                '&:hover': { opacity: 1, color: 'error.main' },
-                p: 0.5,
-              }}
-              aria-label={t('deleteStep')}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+      {/* Main step card */}
+      <Paper
+        elevation={hasSubproofBars ? 0 : 1}
+        sx={{
+          p: { xs: 1, sm: 2 },
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: { xs: 1, sm: 2 },
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          cursor: isSelectable ? 'pointer' : 'default',
+          bgcolor: getBgColor(isSelected, isPremise, isBranchStart),
+          borderLeft: (isPremise || isBranchStart) ? '4px solid' : 'none',
+          borderLeftColor: getBorderColor(isPremise, isBranchStart),
+          '&:hover': isSelectable
+            ? {
+                bgcolor: 'action.hover',
+              }
+            : {},
+        }}
+        onClick={() => isSelectable && onToggleSelect(step.id)}
+      >
+        {isSelectable && (
+          <Checkbox
+            checked={isSelected}
+            onChange={() => onToggleSelect(step.id)}
+            onClick={(e) => e.stopPropagation()}
+            size="small"
+          />
         )}
-      </Box>
-    </Paper>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: 30, sm: 50 } }}>
+          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+            {step.lineNumber || step.id}.
+          </Typography>
+        </Box>
+
+        <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+          <FormulaDisplay latex={latex} error={error} />
+        </Box>
+
+        <Box sx={{ 
+          textAlign: 'right', 
+          minWidth: { xs: 'auto', sm: 120 },
+          width: { xs: '100%', sm: 'auto' },
+          mt: { xs: OPACITY.HALF, sm: 0 },
+          pl: { xs: isSelectable ? LAYOUT.CHECKBOX_PADDING : 0, sm: 0 },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: 1,
+        }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+            {t(step.justificationKey, step.justificationParams)}
+          </Typography>
+          {canDelete && onDelete && (
+            <Tooltip title={t('deleteStep')}>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(step.id)
+                }}
+                sx={{ 
+                  opacity: 0.6, 
+                  '&:hover': { opacity: 1, color: 'error.main' },
+                  p: 0.5,
+                }}
+                aria-label={t('deleteStep')}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      </Paper>
+    </Box>
   )
 }

@@ -14,6 +14,71 @@ describe('ProofStep', () => {
     depth: 0,
   }
 
+  it('renders no depth bars when subproofDepths is empty', () => {
+    const { container } = render(
+      <ProofStep
+        step={mockStep}
+        isSelectable={false}
+        isSelected={false}
+        onToggleSelect={() => {}}
+        subproofDepths={[]}
+      />
+    )
+    const depthBars = container.querySelectorAll('[data-testid^="depth-bar-"]')
+    expect(depthBars).toHaveLength(0)
+  })
+
+  it('renders one depth bar when step is inside one subproof', () => {
+    const nestedStep = { ...mockStep, depth: 1 }
+    const { container } = render(
+      <ProofStep
+        step={nestedStep}
+        isSelectable={false}
+        isSelected={false}
+        onToggleSelect={() => {}}
+        subproofDepths={[1]}
+      />
+    )
+    const depthBars = container.querySelectorAll('[data-testid^="depth-bar-"]')
+    expect(depthBars).toHaveLength(1)
+  })
+
+  it('renders two depth bars for nested subproofs', () => {
+    const deepStep = { ...mockStep, depth: 2 }
+    const { container } = render(
+      <ProofStep
+        step={deepStep}
+        isSelectable={false}
+        isSelected={false}
+        onToggleSelect={() => {}}
+        subproofDepths={[1, 2]}
+      />
+    )
+    const depthBars = container.querySelectorAll('[data-testid^="depth-bar-"]')
+    expect(depthBars).toHaveLength(2)
+  })
+
+  it('renders assumption step with subproof-start top border', () => {
+    const assumeStep: ProofStepType = {
+      ...mockStep,
+      depth: 1,
+      isSubproofStart: true,
+      ruleKey: RULE_KEYS.ASSUME,
+    }
+    const { container } = render(
+      <ProofStep
+        step={assumeStep}
+        isSelectable={false}
+        isSelected={false}
+        onToggleSelect={() => {}}
+        subproofDepths={[1]}
+        isFirstInSubproof={true}
+      />
+    )
+    const wrapper = container.querySelector('[data-testid="subproof-wrapper"]')
+    expect(wrapper).toBeInTheDocument()
+  })
+
   it('renders step number and formula', () => {
     render(
       <ProofStep
@@ -42,7 +107,7 @@ describe('ProofStep', () => {
     expect(checkbox).toBeInTheDocument()
   })
 
-  it('applies indentation based on depth', () => {
+  it('applies indentation via depth bars rather than margin', () => {
     const nestedStep = { ...mockStep, depth: 2 }
     const { container } = render(
       <ProofStep
@@ -50,11 +115,12 @@ describe('ProofStep', () => {
         isSelectable={false}
         isSelected={false}
         onToggleSelect={() => {}}
+        subproofDepths={[1, 2]}
       />
     )
 
-    const paper = container.querySelector('.MuiPaper-root')
-    expect(paper).toHaveStyle({ marginLeft: '32px' }) // 2 * 16px (reduced for responsive design)
+    const depthBars = container.querySelectorAll('[data-testid^="depth-bar-"]')
+    expect(depthBars).toHaveLength(2)
   })
 
   it('shows delete button when canDelete is true', () => {

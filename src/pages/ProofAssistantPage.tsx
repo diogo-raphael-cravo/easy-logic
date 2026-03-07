@@ -46,6 +46,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { RULE_KEYS } from '../logic/proof'
 import { getNextHintKey } from '../logic/proof/hintStrategy'
+import { computeSubproofRanges, getContainingSubproofDepths } from '../logic/proof/subproofRanges'
 import { useProofState } from '../hooks/useProofState'
 import { useCelebration } from '../hooks/useCelebration'
 import ProofStep from '../components/ProofStep'
@@ -592,17 +593,34 @@ export default function ProofAssistantPage() {
               </Typography>
             ) : (
               <Box>
-                {proofState.steps.map((step) => (
-                  <ProofStep
-                    key={step.id}
-                    step={step}
-                    isSelectable={step.depth === proofState.currentDepth && !proofState.isComplete}
-                    isSelected={selectedSteps.includes(step.id)}
-                    onToggleSelect={handleToggleStepSelection}
-                    onDelete={handleDeleteStep}
-                    canDelete={step.ruleKey !== RULE_KEYS.PREMISE && !proofState.isComplete}
-                  />
-                ))}
+                {(() => {
+                  const ranges = computeSubproofRanges(proofState.steps)
+                  return proofState.steps.map((step, idx) => {
+                    const subproofDepths = getContainingSubproofDepths(idx, ranges)
+                    // Determine if this step is first/last in its innermost subproof
+                    const innerDepth = subproofDepths.length > 0 ? subproofDepths[subproofDepths.length - 1] : undefined
+                    const innerRange = innerDepth === undefined
+                      ? undefined
+                      : ranges.find(r => r.depth === innerDepth && idx >= r.startIndex && idx <= r.endIndex)
+                    const isFirstInSubproof = innerRange ? idx === innerRange.startIndex : false
+                    const isLastInSubproof = innerRange ? idx === innerRange.endIndex : false
+
+                    return (
+                      <ProofStep
+                        key={step.id}
+                        step={step}
+                        isSelectable={step.depth === proofState.currentDepth && !proofState.isComplete}
+                        isSelected={selectedSteps.includes(step.id)}
+                        onToggleSelect={handleToggleStepSelection}
+                        onDelete={handleDeleteStep}
+                        canDelete={step.ruleKey !== RULE_KEYS.PREMISE && !proofState.isComplete}
+                        subproofDepths={subproofDepths}
+                        isFirstInSubproof={isFirstInSubproof}
+                        isLastInSubproof={isLastInSubproof}
+                      />
+                    )
+                  })
+                })()}
               </Box>
             )}
 
