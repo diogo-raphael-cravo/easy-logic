@@ -170,21 +170,22 @@ describe('ProofStep', () => {
     expect(mockOnDelete).toHaveBeenCalledWith(1)
   })
 
-  it('renders branch start step', () => {
-    const branchStep: ProofStepType = { 
+  it('renders assumption step with yellow highlight', () => {
+    const assumptionStep: ProofStepType = { 
       ...mockStep, 
-      ruleKey: RULE_KEYS.OR_ELIM,
+      ruleKey: RULE_KEYS.ASSUME,
     }
-    render(
+    const { container } = render(
       <ProofStep
-        step={branchStep}
+        step={assumptionStep}
         isSelectable={false}
         isSelected={false}
         onToggleSelect={() => {}}
       />
     )
 
-    // Branch start step renders correctly
-    expect(screen.getByText('1.')).toBeInTheDocument()
+    // Assumption step should be marked with data-assumption attribute
+    const paper = container.querySelector('[data-assumption="true"]')
+    expect(paper).toBeInTheDocument()
   })
 })
