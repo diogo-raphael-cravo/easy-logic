@@ -1931,10 +1931,7 @@ describe('NaturalDeduction', () => {
 
     it('allows rule application using depth-0 steps from inside a subproof', () => {
       // From inside open subproof B, use depth 0 step 1 and step 4 → should work
-      const rule = nd.getRules().find((r) => r.id === 'mp')!
-      // Step 1 is (p)->q at depth 0, step 4 is (p)->q at depth 0 — both accessible
-      // We need a proper MP test: use step 4 ((p)->(q)) with some p at depth 0
-      // Actually let's test ∧I with two depth-0 steps
+      // Test ∧I with two depth-0 steps
       const andRule = nd.getRules().find((r) => r.id === 'and_intro')!
       const result = nd.applyRule(andRule, stateWithClosedSubproof, [1, 4])
       expect(result).not.toBeNull()
