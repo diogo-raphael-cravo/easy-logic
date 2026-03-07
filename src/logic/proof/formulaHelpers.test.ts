@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formulaToString, isFullyParenthesized, parseImplication, normalizeFormula } from './formulaHelpers'
+import { formulaToString, isFullyParenthesized, parseImplication, normalizeFormula, formulasMatch } from './formulaHelpers'
 import { FormulaType, type Formula } from '../formula/types'
 
 describe('formulaHelpers', () => {
@@ -281,6 +281,39 @@ describe('formulaHelpers', () => {
 
     it('handles complex nested formula', () => {
       expect(normalizeFormula('((P ^ Q) -> (R | S)) <-> (~T | F)')).toBe('p^q->r|s<->~t|f')
+    })
+  })
+
+  describe('formulasMatch', () => {
+    it('matches identical formulas', () => {
+      expect(formulasMatch('p -> q', 'p -> q')).toBe(true)
+    })
+
+    it('matches formulas with different whitespace', () => {
+      expect(formulasMatch('p  ->  q', 'p -> q')).toBe(true)
+    })
+
+    it('matches formulas with redundant outer parentheses', () => {
+      expect(formulasMatch('(p -> q)', 'p -> q')).toBe(true)
+    })
+
+    it('distinguishes structurally different formulas that normalizeFormula would equate', () => {
+      // normalizeFormula strips all parens, making these look the same
+      expect(formulasMatch('(p ^ q) -> r', 'p ^ (q -> r)')).toBe(false)
+    })
+
+    it('matches complex equivalent formulas', () => {
+      expect(formulasMatch('(p -> q) ^ r', '(p -> q) ^ r')).toBe(true)
+    })
+
+    it('falls back gracefully for unparseable formulas', () => {
+      // Both unparseable → falls back to normalizeFormula
+      expect(formulasMatch('???', '???')).toBe(true)
+    })
+
+    it('handles negation correctly', () => {
+      expect(formulasMatch('~p', '~p')).toBe(true)
+      expect(formulasMatch('~p', 'p')).toBe(false)
     })
   })
 })

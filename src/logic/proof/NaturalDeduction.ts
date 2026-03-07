@@ -8,7 +8,7 @@ import { ProofSystem, Rule, ProofState, ProofStep, ApplicableRule, KnowledgeBase
 import { tokenizeAndParse, FormulaType } from '../formula/common'
 import { knowledgeBases } from './knowledgeBases'
 import { naturalDeductionRules } from './rules'
-import { formulaToString, isFullyParenthesized, parseImplication, normalizeFormula } from './formulaHelpers'
+import { formulaToString, isFullyParenthesized, parseImplication, normalizeFormula, formulasMatch } from './formulaHelpers'
 
 /** ∨ Elimination requires exactly 3 steps: P∨Q, P→C, Q→C */
 const OR_ELIM_REQUIRED_STEPS = 3
@@ -592,10 +592,12 @@ export class NaturalDeduction implements ProofSystem {
     
     // Proof is complete if:
     // 1. We're at depth 0 (no open assumptions)
-    // 2. The last step matches the goal
+    // 2. The last step itself is at depth 0 (defense-in-depth against desync)
+    // 3. The last step matches the goal (AST-based comparison)
     return (
       state.currentDepth === 0 &&
-      normalizeFormula(lastStep.formula) === normalizeFormula(state.goal)
+      lastStep.depth === 0 &&
+      formulasMatch(lastStep.formula, state.goal)
     )
   }
 

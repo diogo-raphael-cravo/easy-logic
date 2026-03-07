@@ -112,3 +112,19 @@ export function parseImplication(formula: string): { antecedent: string; consequ
 export function normalizeFormula(formula: string): string {
   return formula.replace(/\s+/g, '').replace(/[()]/g, '').toLowerCase()
 }
+
+/**
+ * Compare two formula strings by parsing them into ASTs and comparing
+ * their canonical string representations. This avoids the parenthesis-stripping
+ * problem in normalizeFormula (Bug 30 / Bug 32).
+ */
+export function formulasMatch(a: string, b: string): boolean {
+  try {
+    const parsedA = tokenizeAndParse(a)
+    const parsedB = tokenizeAndParse(b)
+    return formulaToString(parsedA) === formulaToString(parsedB)
+  } catch {
+    // If either formula fails to parse, fall back to normalizeFormula
+    return normalizeFormula(a) === normalizeFormula(b)
+  }
+}
