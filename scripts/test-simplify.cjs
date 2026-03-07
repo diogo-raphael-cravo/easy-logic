@@ -34,7 +34,7 @@ const j = jscodeshift.withParser('tsx');
 /** Dedicated vitest config for single-test coverage runs (no thresholds). */
 const SIMPLIFY_CONFIG = 'vitest.simplify.config.ts';
 
-// ── Pure functions (exported for testing) ────────────────────────────────────────────
+// ── Pure functions (exported for testing) ────────────────────────────────────
 
 /**
  * Collect covered statement fingerprints from a single file's coverage data.
@@ -202,7 +202,7 @@ function fingerprintsEqual(fpA, fpB) {
   return true;
 }
 
-// ── AST helpers (powered by jscodeshift) ─────────────────────────────────────────
+// ── AST helpers (powered by jscodeshift) ─────────────────────────────────────
 
 /**
  * Separate a possible shebang line from the rest of the source.
@@ -440,7 +440,7 @@ function removeEmptyDescribeBlocks(source) {
   return shebang + root.toSource({ lineTerminator: detectLineTerminator(source) });
 }
 
-// ── Integration helpers (not unit-tested) ──────────────────────────────────────
+// ── Integration helpers (not unit-tested) ────────────────────────────────────
 
 /* v8 ignore start — integration code that shells out to vitest */
 
@@ -471,7 +471,7 @@ function findTestFiles(projectDir) {
   return results.sort((a, b) => a.localeCompare(b));
 }
 
-// ── Async helpers ────────────────────────────────────────────────────────
+// ── Async helpers ────────────────────────────────────────────────────────────
 
 /**
  * Run a shell command asynchronously. Resolves `true` on success,
@@ -519,7 +519,7 @@ async function runWithConcurrency(tasks, maxConcurrent) {
   return results;
 }
 
-// ── Per-file competition ─────────────────────────────────────────────────
+// ── Per-file competition ─────────────────────────────────────────────────────
 
 /**
  * Collect per-test coverage fingerprints for a single test file,
@@ -607,7 +607,7 @@ async function processFile(testFile, projectDir, fileIndex) {
   return { file: testFile, subsumed, total: testNames.length };
 }
 
-// ── CLI entry point ──────────────────────────────────────────────────────
+// ── CLI entry point ──────────────────────────────────────────────────────────
 
 async function main() {
   const projectDir = process.cwd();
