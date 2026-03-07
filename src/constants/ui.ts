@@ -9,6 +9,22 @@ export const LAYOUT = {
   RULE_BUTTON_MIN_WIDTH: 120,
 } as const
 
+// Fitch-style subproof boxing constants
+export const FITCH = {
+  /** Width of each vertical depth bar in pixels */
+  BAR_WIDTH_PX: 4,
+  /** Gap between depth bars in pixels (theme spacing unit) */
+  BAR_GAP_PX: '4px',
+  /** Corner radius at subproof start/end in pixels */
+  BAR_RADIUS_PX: 3,
+  /** Gap between proof steps in pixels (theme spacing unit) */
+  STEP_GAP_PX: '4px',
+  /** Extra spacing before/after a subproof block (theme spacing unit) */
+  SUBPROOF_SPACING_PX: '8px',
+  /** Colours for successive nesting levels */
+  COLORS: ['#7b68ae', '#4caf50', '#ff9800', '#2196f3', '#e91e63'] as readonly string[],
+} as const
+
 // Animation durations (milliseconds)
 export const ANIMATION_MS = {
   FAST: 1000,
