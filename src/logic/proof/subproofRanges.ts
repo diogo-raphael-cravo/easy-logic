@@ -8,7 +8,7 @@
 import type { ProofStep } from './types'
 
 /** Describes where a subproof lives within the step list */
-export interface SubproofRange {
+interface SubproofRange {
   /** Index (into the flat steps array) of the first step in this subproof */
   startIndex: number
   /** Index of the last step in this subproof */
