@@ -4,9 +4,8 @@
  * These Playwright tests drive the Easy Logic proof assistant UI to prove
  * the five Level 2 proofs from PROOF_TEST_PLAN.md.
  *
- * Since the app only provides pre-configured knowledge bases, proofs whose
- * premises don't match an existing KB are encoded as implications and proved
- * using the Empty KB with Assume / → Introduction.
+ * Each test selects a dedicated knowledge base whose premises match the
+ * proof scenario, then applies inference rules to derive the goal.
  */
 
 import { test, expect, Page } from '@playwright/test'
@@ -135,49 +134,35 @@ test.describe('Level 2 — Multiple Steps', () => {
   // -----------------------------------------------------------------------
   // Test 8: Conjunction Elimination + Modus Ponens
   //   Premises: P∧Q, Q→R    Goal: R
-  //   Rules: ∧ Elimination Right, Modus Ponens
-  //
-  //   No existing KB has these premises. Encode as an implication:
-  //     (p ^ q) ^ (q -> r) -> r
+  //   Rules: ∧ Elimination (Right), Modus Ponens
+  //   KB: Conjunction + MP (premises: p ^ q, q -> r)
   //   Proof:
-  //     1. Assume (p ^ q) ^ (q -> r)
-  //     2. ∧ Elim Right → q -> r
-  //     3. ∧ Elim Left  → p ^ q
-  //     4. ∧ Elim Right on (3) → q
-  //     5. MP on (2) and (4) → r
-  //     6. → Introduction → closes subproof
+  //     1. p ^ q       (premise)
+  //     2. q -> r      (premise)
+  //     3. ∧ Elim Right on (1) → q
+  //     4. MP on (3) and (2) → r
   // -----------------------------------------------------------------------
   test('8. Conjunction Elim + MP — derive R from P∧Q and Q→R', async ({
     page,
   }) => {
     await openProofAssistant(page)
 
-    // Stay on Empty KB (default) and enter a custom goal
-    await enterCustomGoal(page, '(p ^ q) ^ (q -> r) -> r')
+    // Select the "Conjunction + MP" KB (premises: p ^ q, q -> r)
+    await selectKB(page, 'Conjunction + MP')
 
+    // Pick the suggested goal "Derive r"
+    await selectGoal(page, 'Derive r')
+
+    // Dialog closes; two premises shown: p ^ q (1), q -> r (2)
     await expect(page.getByRole('dialog')).not.toBeVisible()
 
-    // Step 1: Assume (p ^ q) ^ (q -> r) — opens subproof
-    await applyRuleWithInput(page, 'Assume', '(p ^ q) ^ (q -> r)')
-
-    // Step 2: ∧ Elimination (Right) on step 1 → q -> r
+    // Step 3: ∧ Elimination (Right) on step 1 (p ^ q) → q
     await selectSteps(page, '1')
     await applyRule(page, '∧ Elimination (Right)')
 
-    // Step 3: ∧ Elimination (Left) on step 1 → p ^ q
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Left)')
-
-    // Step 1.3: ∧ Elimination (Right) on step 1.2 → q
-    await selectSteps(page, '1.2')
-    await applyRule(page, '∧ Elimination (Right)')
-
-    // Step 1.4: Modus Ponens on steps 1.1 (q→r) and 1.3 (q) → r
-    await selectSteps(page, '1.1', '1.3')
+    // Step 4: Modus Ponens on steps 3 (q) and 2 (q -> r) → r
+    await selectSteps(page, '3', '2')
     await applyRule(page, 'Modus Ponens')
-
-    // Step 6: → Introduction — closes subproof
-    await applyRule(page, '→ Introduction')
 
     await expectProofComplete(page)
     await screenshotCompletedProof(page, '8-conj-elim-modus-ponens')
@@ -187,39 +172,27 @@ test.describe('Level 2 — Multiple Steps', () => {
   // Test 9: Modus Tollens
   //   Premises: P→Q, ~Q    Goal: ~P
   //   Rules: Modus Tollens
-  //
-  //   Encode as: (p -> q) ^ ~q -> ~p
+  //   KB: Modus Tollens (premises: p -> q, ~q)
   //   Proof:
-  //     1. Assume (p -> q) ^ ~q
-  //     2. ∧ Elim Left  → p -> q
-  //     3. ∧ Elim Right → ~q
-  //     4. Modus Tollens on (2) and (3) → ~p
-  //     5. → Introduction → closes subproof
+  //     1. p -> q    (premise)
+  //     2. ~q        (premise)
+  //     3. MT on (1) and (2) → ~p
   // -----------------------------------------------------------------------
   test('9. Modus Tollens — derive ~P from P→Q and ~Q', async ({ page }) => {
     await openProofAssistant(page)
 
-    await enterCustomGoal(page, '(p -> q) ^ ~q -> ~p')
+    // Select the "Modus Tollens" KB (premises: p -> q, ~q)
+    await selectKB(page, 'Modus Tollens')
 
+    // Pick the suggested goal "Derive ¬p"
+    await selectGoal(page, 'Derive ¬p')
+
+    // Dialog closes; two premises shown: p -> q (1), ~q (2)
     await expect(page.getByRole('dialog')).not.toBeVisible()
 
-    // Step 1: Assume (p -> q) ^ ~q
-    await applyRuleWithInput(page, 'Assume', '(p -> q) ^ ~q')
-
-    // Step 2: ∧ Elimination (Left) on step 1 → p -> q
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Left)')
-
-    // Step 3: ∧ Elimination (Right) on step 1 → ~q
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Right)')
-
-    // Step 1.3: Modus Tollens on steps 1.1 and 1.2 → ~p
-    await selectSteps(page, '1.1', '1.2')
+    // Step 3: Modus Tollens on steps 1 (p -> q) and 2 (~q) → ~p
+    await selectSteps(page, '1', '2')
     await applyRule(page, 'Modus Tollens')
-
-    // Step 5: → Introduction → closes subproof
-    await applyRule(page, '→ Introduction')
 
     await expectProofComplete(page)
     await screenshotCompletedProof(page, '9-modus-tollens')
@@ -229,41 +202,29 @@ test.describe('Level 2 — Multiple Steps', () => {
   // Test 10: Disjunctive Syllogism
   //   Premises: P|Q, ~P    Goal: Q
   //   Rules: Disjunctive Syllogism
-  //
-  //   Encode as: (p | q) ^ ~p -> q
+  //   KB: Disjunctive Syllogism (premises: p | q, ~p)
   //   Proof:
-  //     1. Assume (p | q) ^ ~p
-  //     2. ∧ Elim Left  → p | q
-  //     3. ∧ Elim Right → ~p
-  //     4. Disjunctive Syllogism on (2) and (3) → q
-  //     5. → Introduction → closes subproof
+  //     1. p | q     (premise)
+  //     2. ~p        (premise)
+  //     3. DS on (1) and (2) → q
   // -----------------------------------------------------------------------
   test('10. Disjunctive Syllogism — derive Q from P|Q and ~P', async ({
     page,
   }) => {
     await openProofAssistant(page)
 
-    await enterCustomGoal(page, '(p | q) ^ ~p -> q')
+    // Select the "Disjunctive Syllogism" KB (premises: p | q, ~p)
+    await selectKB(page, 'Disjunctive Syllogism')
 
+    // Pick the suggested goal "Derive q"
+    await selectGoal(page, 'Derive q')
+
+    // Dialog closes; two premises shown: p | q (1), ~p (2)
     await expect(page.getByRole('dialog')).not.toBeVisible()
 
-    // Step 1: Assume (p | q) ^ ~p
-    await applyRuleWithInput(page, 'Assume', '(p | q) ^ ~p')
-
-    // Step 2: ∧ Elimination (Left) on step 1 → p | q
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Left)')
-
-    // Step 3: ∧ Elimination (Right) on step 1 → ~p
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Right)')
-
-    // Step 1.3: Disjunctive Syllogism on steps 1.1 and 1.2 → q
-    await selectSteps(page, '1.1', '1.2')
+    // Step 3: Disjunctive Syllogism on steps 1 (p | q) and 2 (~p) → q
+    await selectSteps(page, '1', '2')
     await applyRule(page, 'Disjunctive Syllogism')
-
-    // Step 5: → Introduction → closes subproof
-    await applyRule(page, '→ Introduction')
 
     await expectProofComplete(page)
     await screenshotCompletedProof(page, '10-disjunctive-syllogism')
