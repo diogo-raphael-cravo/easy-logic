@@ -5,6 +5,18 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { parseVitestRunOutput } = require('../scripts/vitest-output.cjs');
 
+// Resolve the directory containing the current Node.js binary.
+// Git hooks on Windows run in a limited shell where the Node/npm PATH
+// is not inherited, so npx/npm commands fail with "command not found".
+// By prepending the Node binary directory to PATH we ensure npx, npm,
+// and other Node tools are always resolvable.
+function getEnvWithNodePath() {
+  const nodeDir = path.dirname(process.execPath);
+  const pathKey = process.platform === 'win32' ? 'Path' : 'PATH';
+  const currentPath = process.env[pathKey] || process.env.PATH || '';
+  return { ...process.env, [pathKey]: `${nodeDir}${path.delimiter}${currentPath}` };
+}
+
 // Color codes for terminal output
 const colors = {
   reset: '\x1b[0m',
@@ -39,7 +51,8 @@ function runTestsWithCoverage(stepLabel) {
   try {
     const testOutput = execSync('npx vitest run --coverage', {
       stdio: 'pipe',
-      encoding: 'utf-8'
+      encoding: 'utf-8',
+      env: getEnvWithNodePath(),
     });
 
     const { coverage, skippedTests } = parseVitestRunOutput(testOutput);
@@ -91,6 +104,7 @@ try {
     stdio: 'pipe',
     encoding: 'utf-8',
     timeout: 60000,
+    env: getEnvWithNodePath(),
   });
   printStatus(true, 'Bootstrap update applied (or already up to date)');
 } catch {
@@ -296,6 +310,7 @@ try {
     stdio: 'pipe',
     encoding: 'utf-8',
     shell: true,
+    env: getEnvWithNodePath(),
   });
 
   printStatus(true, 'package-lock.json is valid and in sync');
@@ -320,6 +335,7 @@ try {
     stdio: 'pipe',
     encoding: 'utf-8',
     shell: true,
+    env: getEnvWithNodePath(),
   });
   printStatus(true, 'ESLint passed - no violations');
 } catch (error) {
@@ -343,7 +359,8 @@ try {
   // Run jscpd - it will exit with error code if threshold is exceeded
   execSync('npx jscpd src --reporters json --silent', {
     stdio: 'pipe',
-    encoding: 'utf-8'
+    encoding: 'utf-8',
+    env: getEnvWithNodePath(),
   });
 
   // Read the report file
@@ -476,7 +493,8 @@ console.log('Step 10: TypeScript type checking...');
 try {
   execSync('npx tsc --noEmit', {
     stdio: 'pipe',
-    encoding: 'utf-8'
+    encoding: 'utf-8',
+    env: getEnvWithNodePath(),
   });
   printStatus(true, 'TypeScript type check passed');
 } catch (error) {
@@ -485,7 +503,7 @@ try {
   log(colors.red, '\n❌ Push aborted: Fix all TypeScript errors before pushing');
   console.log('');
   log(colors.cyan, '🤖 AI ASSISTANT — HOW TO FIX THIS:');
-  log(colors.cyan, '   Read each error above — it includes the file path, line number, and description.');
+  log(colors.cyan, '   Read each error above \u2014 it includes the file path, line number, and description.');
   log(colors.cyan, '   Fix the type errors in the source files. Do NOT add `any` casts or @ts-ignore to hide them.');
   log(colors.cyan, '   Run `npx tsc --noEmit` locally to verify all errors are resolved before pushing.');
   log(colors.cyan, '   ⛔ NEVER bypass with --no-verify, HUSKY=0, or git push --no-verify.');
@@ -500,6 +518,7 @@ try {
     stdio: 'pipe',
     encoding: 'utf-8',
     shell: true,
+    env: getEnvWithNodePath(),
   });
 
   printStatus(true, 'Build successful');
@@ -522,7 +541,8 @@ console.log('Step 12: Checking for dead code...');
 try {
   execSync('npx knip', {
     stdio: 'pipe',
-    encoding: 'utf-8'
+    encoding: 'utf-8',
+    env: getEnvWithNodePath(),
   });
   printStatus(true, 'No dead code detected');
 } catch (error) {
@@ -569,6 +589,7 @@ console.log('Step 13: Running SonarJS analysis...');
     output = execSync('npx eslint src scripts .husky --format stylish', { // NOSONAR
       stdio: 'pipe',
       encoding: 'utf-8',
+      env: getEnvWithNodePath(),
     });
   } catch (error) {
     output = (error.stdout || '') + (error.stderr || '');
@@ -592,7 +613,7 @@ console.log('Step 13: Running SonarJS analysis...');
     log(colors.red, '\n❌ Push aborted: Fix all SonarJS errors before pushing');
     console.log('');
     log(colors.cyan, '🤖 AI ASSISTANT — HOW TO FIX THIS:');
-    log(colors.cyan, '   Read each sonarjs/ error above — it names the rule and the file/line.');
+    log(colors.cyan, '   Read each sonarjs/ error above \u2014 it names the rule and the file/line.');
     log(colors.cyan, '   Fix the code to satisfy the rule (reduce complexity, fix security flaw, etc.).');
     log(colors.cyan, '   Use `// NOSONAR` on a specific line only when the violation is deliberate and documented.');
     log(colors.cyan, '   ⛔ NEVER bypass with --no-verify, HUSKY=0, or git push --no-verify.');
@@ -603,6 +624,58 @@ console.log('Step 13: Running SonarJS analysis...');
   printStatus(true, `SonarJS analysis passed${warnSuffix}`);
   console.log('');
 })();
+
+function installPlaywrightBrowsers() {
+  log(colors.cyan, '   Installing Playwright browsers...');
+  try {
+    execSync('npx playwright install --with-deps chromium', {
+      stdio: 'inherit',
+      encoding: 'utf-8',
+      shell: true,
+      env: getEnvWithNodePath(),
+      timeout: 120000,
+    });
+    log(colors.cyan, '   Playwright browsers installed successfully');
+  } catch (error) {
+    if (error.killed) {
+      log(colors.yellow, '⚠️  Playwright browser installation timed out after 120s');
+    } else {
+      log(colors.yellow, '⚠️  Playwright browser installation may have failed — attempting tests anyway');
+    }
+  }
+}
+
+function runPlaywrightTests() {
+  log(colors.cyan, '   Running Playwright E2E tests (timeout: 120s)...');
+  try {
+    const e2eResult = execSync('npx playwright test', {
+      stdio: 'pipe',
+      encoding: 'utf-8',
+      shell: true,
+      env: getEnvWithNodePath(),
+      timeout: 120000,
+    });
+    console.log(e2eResult);
+    printStatus(true, 'E2E Playwright tests passed');
+  } catch (error) {
+    if (error.killed) {
+      printStatus(false, 'E2E Playwright tests timed out after 120s');
+      log(colors.yellow, '   The test process was killed due to timeout.');
+      log(colors.yellow, '   This may indicate the dev server failed to start or a test is stuck.');
+    } else {
+      printStatus(false, 'E2E Playwright tests failed');
+    }
+    console.log(error.stdout?.toString().slice(-2000) || '');
+    console.log(error.stderr?.toString().slice(-2000) || '');
+    log(colors.red, '\n❌ Push aborted: E2E tests must pass before pushing');
+    console.log('');
+    log(colors.cyan, '🤖 AI ASSISTANT — HOW TO FIX THIS:');
+    log(colors.cyan, '   Run `npx playwright test` locally to diagnose failures.');
+    log(colors.cyan, '   Fix the failing tests or the application code.');
+    log(colors.cyan, '   ⛔ NEVER bypass with --no-verify, HUSKY=0, or git push --no-verify.');
+    process.exit(1);
+  }
+}
 
 // Step 14: E2E Playwright tests with screenshot verification (React template only)
 console.log('Step 14: Running E2E Playwright tests...');
@@ -667,35 +740,8 @@ console.log('Step 14: Running E2E Playwright tests...');
     }
   }
 
-  // Run Playwright tests
-  try {
-    execSync('npx playwright install --with-deps chromium', {
-      stdio: 'pipe',
-      encoding: 'utf-8',
-      shell: true,
-    });
-  } catch {
-    log(colors.yellow, '⚠️  Playwright browser installation may have failed — attempting tests anyway');
-  }
-
-  try {
-    execSync('npx playwright test', {
-      stdio: 'pipe',
-      encoding: 'utf-8',
-      shell: true,
-    });
-    printStatus(true, 'E2E Playwright tests passed');
-  } catch (error) {
-    printStatus(false, 'E2E Playwright tests failed');
-    console.log(error.stdout?.toString().slice(-2000) || '');
-    log(colors.red, '\n❌ Push aborted: E2E tests must pass before pushing');
-    console.log('');
-    log(colors.cyan, '🤖 AI ASSISTANT — HOW TO FIX THIS:');
-    log(colors.cyan, '   Run `npx playwright test` locally to diagnose failures.');
-    log(colors.cyan, '   Fix the failing tests or the application code.');
-    log(colors.cyan, '   ⛔ NEVER bypass with --no-verify, HUSKY=0, or git push --no-verify.');
-    process.exit(1);
-  }
+  installPlaywrightBrowsers();
+  runPlaywrightTests();
 
   // Verify screenshots: one PNG per test
   const pngFiles = fs.readdirSync(screenshotsDir).filter(f => f.endsWith('.png'));
@@ -718,3 +764,4 @@ console.log('Step 14: Running E2E Playwright tests...');
 // All checks passed
 log(colors.green, '✅ All pre-push checks passed!');
 log(colors.green, 'Proceeding with push...');
+process.exit(0);
