@@ -21,6 +21,12 @@ async function openProofAssistant(page: Page) {
   await expect(page.getByRole('dialog')).toBeVisible()
 }
 
+/** Select a knowledge base by its translated name */
+async function selectKB(page: Page, name: string) {
+  const dialog = page.getByRole('dialog')
+  await dialog.getByRole('button', { name, exact: true }).click()
+}
+
 /** Click a suggested goal by its label */
 async function selectGoal(page: Page, goalLabel: string) {
   const dialog = page.getByRole('dialog')
@@ -126,58 +132,42 @@ test.describe('Level 3 — Subproofs (→ Introduction)', () => {
 
   // -----------------------------------------------------------------------
   // Test 13: Hypothetical Syllogism
-  //   Original: P→Q, Q→R ⊢ P→R
-  //   Encoded:  (p → q) ∧ (q → r) ∧ p → r
-  //
-  //   All premises + the assumed variable are packed into a single
-  //   conjunction at depth 1 so that every formula is selectable.
+  //   Premises: P, P→Q, Q→R    Goal: P→R
+  //   KB: Hypothetical Syllogism (premises: p, p→q, q→r)
   //   Proof:
-  //     1. Assume (p -> q) ^ (q -> r) ^ p        [depth 1]
-  //     2. ∧ Elim Right  → p                      [depth 1]
-  //     3. ∧ Elim Left   → (p -> q) ^ (q -> r)    [depth 1]
-  //     4. ∧ Elim Left   → p -> q                  [depth 1]
-  //     5. ∧ Elim Right  → q -> r                  [depth 1]
-  //     6. MP (2, 4)     → q                       [depth 1]
-  //     7. MP (6, 5)     → r                       [depth 1]
-  //     8. → Introduction                          [depth 0]
+  //     1. p            (premise)
+  //     2. p → q        (premise)
+  //     3. q → r        (premise)
+  //     4. Assume p     (opens subproof for →I)
+  //       4.1 q         MP (4, 2)
+  //       4.2 r         MP (4.1, 3)
+  //     5. p → r        →I (4–4.2)
   // -----------------------------------------------------------------------
-  test('13. Hypothetical Syllogism — prove (P→Q)∧(Q→R)∧P → R', async ({
+  test('13. Hypothetical Syllogism — prove P→R from P, P→Q, Q→R', async ({
     page,
   }) => {
     await openProofAssistant(page)
 
-    await enterCustomGoal(page, '(p -> q) ^ (q -> r) ^ p -> r')
+    // Select the "Hypothetical Syllogism" KB (premises: p, p→q, q→r)
+    await selectKB(page, 'Hypothetical Syllogism')
+
+    // Pick the "Direct implication" goal (p → r)
+    await selectGoal(page, 'Direct implication')
 
     await expect(page.getByRole('dialog')).not.toBeVisible()
 
-    // Step 1: Assume (p -> q) ^ (q -> r) ^ p
-    await applyRuleWithInput(page, 'Assume', '(p -> q) ^ (q -> r) ^ p')
+    // Step 4: Assume p (opens subproof to prove p → r via →I)
+    await applyRuleWithInput(page, 'Assume', 'p')
 
-    // Step 2: ∧ Elimination (Right) on step 1 → p
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Right)')
-
-    // Step 3: ∧ Elimination (Left) on step 1 → (p -> q) ^ (q -> r)
-    await selectSteps(page, '1')
-    await applyRule(page, '∧ Elimination (Left)')
-
-    // Step 1.3: ∧ Elimination (Left) on step 1.2 → p -> q
-    await selectSteps(page, '1.2')
-    await applyRule(page, '∧ Elimination (Left)')
-
-    // Step 1.4: ∧ Elimination (Right) on step 1.2 → q -> r
-    await selectSteps(page, '1.2')
-    await applyRule(page, '∧ Elimination (Right)')
-
-    // Step 1.5: Modus Ponens on steps 1.1 (p) and 1.3 (p -> q) → q
-    await selectSteps(page, '1.1', '1.3')
+    // Step 4.1: MP on step 4 (p) and premise 2 (p → q) → q
+    await selectSteps(page, '4', '2')
     await applyRule(page, 'Modus Ponens')
 
-    // Step 1.6: Modus Ponens on steps 1.5 (q) and 1.4 (q -> r) → r
-    await selectSteps(page, '1.5', '1.4')
+    // Step 4.2: MP on step 4.1 (q) and premise 3 (q → r) → r
+    await selectSteps(page, '4.1', '3')
     await applyRule(page, 'Modus Ponens')
 
-    // Step 8: → Introduction — closes subproof
+    // Step 5: →I closes subproof → p → r
     await applyRule(page, '→ Introduction')
 
     await expectProofComplete(page)
@@ -186,29 +176,27 @@ test.describe('Level 3 — Subproofs (→ Introduction)', () => {
 
   // -----------------------------------------------------------------------
   // Test 14: Weakening
-  //   Original: P ⊢ Q→P
-  //   Encoded:  (P∧Q)∧R → P∧R  (drop Q, keep P and R)
-  //
-  //   Demonstrates that irrelevant conjuncts can be "weakened away".
+  //   Premises: (P∧Q)∧R    Goal: P∧R
+  //   KB: Weakening (premise: (p ^ q) ^ r)
   //   Proof:
-  //     1. Assume (p ^ q) ^ r              [depth 1]
-  //     2. ∧ Elim Left  → p ^ q            [depth 1]
-  //     3. ∧ Elim Right → r                [depth 1]
-  //     4. ∧ Elim Left  on (2) → p         [depth 1]
-  //     5. ∧ Intro (4, 3) → p ^ r          [depth 1]
-  //     6. → Introduction                   [depth 0]
+  //     1. (p ^ q) ^ r    (premise)
+  //     2. ∧E Left (1) → p ^ q
+  //     3. ∧E Right (1) → r
+  //     4. ∧E Left (2) → p
+  //     5. ∧I (4, 3) → p ^ r
   // -----------------------------------------------------------------------
-  test('14. Weakening — prove (P∧Q)∧R → P∧R by dropping Q', async ({
+  test('14. Weakening — derive P∧R from (P∧Q)∧R by dropping Q', async ({
     page,
   }) => {
     await openProofAssistant(page)
 
-    await enterCustomGoal(page, '(p ^ q) ^ r -> p ^ r')
+    // Select the "Weakening" KB (premise: (p ^ q) ^ r)
+    await selectKB(page, 'Weakening')
+
+    // Pick the "Derive p∧r" goal
+    await selectGoal(page, 'Derive p')
 
     await expect(page.getByRole('dialog')).not.toBeVisible()
-
-    // Step 1: Assume (p ^ q) ^ r
-    await applyRuleWithInput(page, 'Assume', '(p ^ q) ^ r')
 
     // Step 2: ∧ Elimination (Left) on step 1 → p ^ q
     await selectSteps(page, '1')
@@ -218,16 +206,13 @@ test.describe('Level 3 — Subproofs (→ Introduction)', () => {
     await selectSteps(page, '1')
     await applyRule(page, '∧ Elimination (Right)')
 
-    // Step 1.3: ∧ Elimination (Left) on step 1.1 → p
-    await selectSteps(page, '1.1')
+    // Step 4: ∧ Elimination (Left) on step 2 → p
+    await selectSteps(page, '2')
     await applyRule(page, '∧ Elimination (Left)')
 
-    // Step 1.4: ∧ Introduction on steps 1.3 (p) and 1.2 (r) → p ^ r
-    await selectSteps(page, '1.3', '1.2')
+    // Step 5: ∧ Introduction on steps 4 (p) and 3 (r) → p ^ r
+    await selectSteps(page, '4', '3')
     await applyRule(page, '∧ Introduction')
-
-    // Step 6: → Introduction — closes subproof
-    await applyRule(page, '→ Introduction')
 
     await expectProofComplete(page)
     await screenshotCompletedProof(page, '14-weakening')
