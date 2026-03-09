@@ -860,6 +860,72 @@ describe('NaturalDeduction', () => {
       expect(mpKb!.premises).toEqual(['p', 'p -> q'])
       expect(mpKb!.suggestedGoals[0].formula).toBe('q')
     })
+
+    it('contains all 36 knowledge bases', () => {
+      const kbs = nd.getKnowledgeBases()
+      expect(kbs).toHaveLength(36)
+    })
+
+    const expectedKBs: Array<{ id: string; premises: string[]; goal: string }> = [
+      { id: 'empty', premises: [], goal: '' },
+      { id: 'modus-ponens', premises: ['p', 'p -> q'], goal: 'q' },
+      { id: 'conjunction', premises: ['p', 'q'], goal: 'p ^ q' },
+      { id: 'disjunction', premises: ['p'], goal: 'p | q' },
+      { id: 'syllogism', premises: ['p', 'p -> q', 'q -> r'], goal: 'r' },
+      { id: 'elimination', premises: ['p ^ q'], goal: 'p' },
+      { id: 'proof-by-cases', premises: ['p | q', 'p -> r', 'q -> r'], goal: 'r' },
+      { id: 'modus-tollens', premises: ['p -> q', '~q'], goal: '~p' },
+      { id: 'disjunctive-syllogism', premises: ['p | q', '~p'], goal: 'q' },
+      { id: 'conjunction-mp', premises: ['p ^ q', 'q -> r'], goal: 'r' },
+      { id: 'absorption', premises: ['p -> q', 'p'], goal: 'p ^ q' },
+      { id: 'double-negation', premises: ['~~p'], goal: 'p' },
+      { id: 'deep-negation', premises: ['~~~~p'], goal: 'p' },
+      { id: 'negation-intro', premises: ['p -> ~p', '~~p'], goal: '~p' },
+      { id: 'explosion', premises: ['p', '~p'], goal: 'q' },
+      { id: 'contrapositive-chain', premises: ['p -> q', 'q -> r', '~r'], goal: '~p' },
+      { id: 'reverse-contrapositive', premises: ['~q -> ~p', '~~p'], goal: 'q' },
+      { id: 'material-implication', premises: ['p -> q', '~~p'], goal: '~p | q' },
+      { id: 'weakening', premises: ['(p ^ q) ^ r'], goal: 'p ^ r' },
+      { id: 'conjunction-reorder', premises: ['p ^ q ^ r'], goal: 'r ^ q ^ p' },
+      { id: 'uncurrying', premises: ['p -> (q -> r)', 'p', 'q'], goal: 'r' },
+      { id: 'exportation', premises: ['(p ^ q) -> r', 'p', 'q'], goal: 'r' },
+      { id: 'chain-direct', premises: ['p -> q', 'q -> r', 'r -> s', 'p'], goal: 's' },
+      { id: 'long-chain-dn', premises: ['p -> q', 'q -> r', 'r -> s', '~~p'], goal: 's' },
+      { id: 'cases-ds', premises: ['p | q', '~p', 'q -> r'], goal: 'r' },
+      { id: 'disj-triple-neg', premises: ['p | q', '~~~q'], goal: 'q | p' },
+      { id: 'disj-neg', premises: ['p | q', '~q'], goal: 'q | p' },
+      { id: 'reverse-cases', premises: ['p -> r', 'q -> r', 'p | q', '~q'], goal: 'r' },
+      { id: 'distribution-or', premises: ['p | q', 'r', '~p'], goal: '(p ^ r) | (q ^ r)' },
+      { id: 'dist-and-or', premises: ['p ^ (q | r)', '~q'], goal: '(p ^ q) | (p ^ r)' },
+      { id: 'dist-or-and', premises: ['p | (q ^ r)', '~p'], goal: '(p | q) ^ (p | r)' },
+      { id: 'double-implication', premises: ['p -> q', '~p -> q', '~~p'], goal: 'q' },
+      { id: 'constructive-dilemma', premises: ['p -> q', 'r -> s', 'p | r', '~p'], goal: 'q | s' },
+      { id: 'destructive-dilemma', premises: ['p -> q', 'r -> s', '~q | ~s', '~~q'], goal: '~p | ~r' },
+      { id: 'complex-dn', premises: ['~~~~(p | ~p)', '~~(p -> q)', '~~p'], goal: 'q' },
+      { id: 'complex-nested', premises: ['p -> (q | r)', '~q', '~~p', 'r -> s'], goal: 's' },
+    ]
+
+    it.each(expectedKBs)('KB "$id" has correct premises and goal', ({ id, premises, goal }) => {
+      const kbs = nd.getKnowledgeBases()
+      const kb = kbs.find(k => k.id === id)
+      expect(kb).toBeDefined()
+      expect(kb!.premises).toEqual(premises)
+      if (goal) {
+        expect(kb!.suggestedGoals[0].formula).toBe(goal)
+      }
+    })
+
+    it('every KB has valid i18n keys', () => {
+      const kbs = nd.getKnowledgeBases()
+      for (const kb of kbs) {
+        expect(kb.nameKey).toBeTruthy()
+        expect(kb.descriptionKey).toBeTruthy()
+        for (const g of kb.suggestedGoals) {
+          expect(g.labelKey).toBeTruthy()
+          expect(g.descriptionKey).toBeTruthy()
+        }
+      }
+    })
   })
 
   describe('complete proof flow - Modus Ponens', () => {
