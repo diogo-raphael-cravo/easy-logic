@@ -53,10 +53,12 @@ export default function RuleSelector({ rules, onRuleSelect, disabled = false }: 
 
   const handleConfirm = () => {
     if (selectedRule && userInput.trim()) {
-      onRuleSelect(selectedRule.id, userInput.trim())
+      const ruleId = selectedRule.id
+      const input = userInput.trim()
       setDialogOpen(false)
       setUserInput('')
       setSelectedRule(null)
+      onRuleSelect(ruleId, input)
     }
   }
 

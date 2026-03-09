@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import RuleSelector from './RuleSelector'
 import { ApplicableRule } from '../logic/proof'
@@ -219,6 +219,31 @@ describe('RuleSelector', () => {
       await user.type(inputField, 'p{Enter}')
 
       expect(mockOnRuleSelect).toHaveBeenCalledWith('assume', 'p')
+    })
+
+    it('should close dialog after Enter key submits the form (bug-33)', async () => {
+      // Verifies that handleConfirm cleans up local dialog state (closes dialog,
+      // clears input, clears selected rule) and calls onRuleSelect with captured
+      // values. The fix ensures local cleanup happens BEFORE the parent callback
+      // to prevent parent re-renders from losing the dialog-close state update.
+      const user = userEvent.setup()
+      renderComponent()
+
+      await user.click(screen.getByRole('button', { name: /assume/i }))
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+      const inputField = screen.getByRole('textbox', { name: /formula/i })
+      await user.type(inputField, 'p')
+      fireEvent.keyDown(inputField, { key: 'Enter', code: 'Enter' })
+
+      expect(mockOnRuleSelect).toHaveBeenCalledWith('assume', 'p')
+
+      // Flush MUI transition timers so Dialog fully unmounts
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      })
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
     it('should not call onRuleSelect when Enter is pressed with empty input', async () => {
